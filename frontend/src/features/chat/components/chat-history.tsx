@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useChatSession } from "@/features/chat/chat-session";
+import { t } from "@/locales";
 
 type ChatHistoryProps = {
   /** Called after picking a chat, e.g. to close the mobile sidebar. */
@@ -22,10 +23,12 @@ export function ChatHistory({ onNavigate }: ChatHistoryProps) {
   return (
     // Chat titles have no icons, so the list is hidden when collapsed.
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Chats</SidebarGroupLabel>
+      <SidebarGroupLabel>{t.sidebar.history}</SidebarGroupLabel>
       <SidebarGroupContent>
         {conversations.length === 0 ? (
-          <p className="px-2 text-sm text-muted-foreground">No chats yet</p>
+          <p className="px-2 text-sm text-muted-foreground">
+            {t.sidebar.historyEmpty}
+          </p>
         ) : (
           <SidebarMenu>
             {conversations.map((conversation) => (

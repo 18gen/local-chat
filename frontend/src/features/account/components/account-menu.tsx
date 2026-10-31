@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { mockUser } from "@/features/account/mock-user";
+import { t } from "@/locales";
 import { SettingsDialog } from "./settings-dialog";
 import { UserAvatar } from "./user-avatar";
 
@@ -37,7 +38,7 @@ export function AccountMenu() {
                 <div className="grid flex-1 text-left leading-tight">
                   <span className="truncate font-medium">{mockUser.name}</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {mockUser.plan}
+                    {t.account.plans[mockUser.plan]}
                   </span>
                 </div>
               </SidebarMenuButton>
@@ -51,7 +52,7 @@ export function AccountMenu() {
             >
               <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
                 <SettingsIcon />
-                Settings
+                {t.settings.title}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

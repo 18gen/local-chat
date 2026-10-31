@@ -2,6 +2,7 @@
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useChatSession } from "@/features/chat/chat-session";
+import { t } from "@/locales";
 import { Composer } from "./composer";
 import { MessageList } from "./message-list";
 
@@ -24,7 +25,7 @@ export function ChatView() {
 
       {messages.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 pb-16">
-          <h1 className="text-2xl font-semibold">What can I help with?</h1>
+          <h1 className="text-2xl font-semibold">{t.chat.emptyTitle}</h1>
           <div className="w-full max-w-3xl">
             <Composer onSend={sendMessage} disabled={!canSend} />
           </div>
@@ -40,7 +41,7 @@ export function ChatView() {
           <div className="mx-auto w-full max-w-3xl px-4 pb-4">
             <Composer onSend={sendMessage} disabled={!canSend} />
             <p className="mt-2 text-center text-xs text-muted-foreground">
-              Replies are placeholders until the model is connected.
+              {t.chat.placeholderNotice}
             </p>
           </div>
         </>

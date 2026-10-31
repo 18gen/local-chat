@@ -9,16 +9,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { t } from "@/locales";
 
 const RESET_MS = 2000;
 
-type CopyState = "idle" | "copied" | "failed";
-
-const LABELS: Record<CopyState, string> = {
-  idle: "Copy",
-  copied: "Copied",
-  failed: "Couldn't copy",
-};
+// Each state's label is t.copy[state].
+type CopyState = keyof typeof t.copy;
 
 export function CopyButton({ text }: { text: string }) {
   const [state, setState] = useState<CopyState>("idle");
@@ -49,13 +45,13 @@ export function CopyButton({ text }: { text: string }) {
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={LABELS[state]}
+          aria-label={t.copy[state]}
           onClick={() => void copy()}
         >
           {state === "copied" ? <CheckIcon /> : <CopyIcon />}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>{LABELS[state]}</TooltipContent>
+      <TooltipContent>{t.copy[state]}</TooltipContent>
     </Tooltip>
   );
 }

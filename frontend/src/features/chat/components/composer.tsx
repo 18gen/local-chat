@@ -5,6 +5,7 @@ import { ArrowUpIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { t } from "@/locales";
 
 type ComposerProps = {
   onSend: (text: string) => void;
@@ -44,8 +45,8 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
             submit();
           }
         }}
-        placeholder="Ask anything"
-        aria-label="Message"
+        placeholder={t.composer.placeholder}
+        aria-label={t.composer.label}
         rows={1}
         autoFocus
         className="max-h-52 leading-7 py-1 pl-3 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
@@ -54,7 +55,7 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
         type="submit"
         size="icon-lg"
         disabled={!canSend}
-        aria-label="Send message"
+        aria-label={t.composer.send}
         className="shrink-0 rounded-full"
       >
         <ArrowUpIcon className="size-5" />

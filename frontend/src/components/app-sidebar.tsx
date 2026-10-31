@@ -12,6 +12,7 @@ import {
 import { AccountMenu } from "@/features/account/components/account-menu";
 import { ChatHistory } from "@/features/chat/components/chat-history";
 import { NewChatButton } from "@/features/chat/components/new-chat-button";
+import { t } from "@/locales";
 
 export function AppSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
@@ -26,7 +27,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center justify-between">
           <span className="px-2 text-sm font-semibold group-data-[collapsible=icon]:hidden">
-            LocalChat
+            {t.app.name}
           </span>
           {/* Same 32px size as the collapsed menu buttons so the icons line up. */}
           <SidebarTrigger size="icon" />

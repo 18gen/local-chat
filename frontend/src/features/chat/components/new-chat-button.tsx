@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useChatSession } from "@/features/chat/chat-session";
+import { t } from "@/locales";
 
 type NewChatButtonProps = {
   /** Called after starting a chat, e.g. to close the mobile sidebar. */
@@ -21,14 +22,14 @@ export function NewChatButton({ onNavigate }: NewChatButtonProps) {
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
-          tooltip="New chat"
+          tooltip={t.sidebar.newChat}
           onClick={() => {
             startNewChat();
             onNavigate?.();
           }}
         >
           <SquarePenIcon />
-          <span>New chat</span>
+          <span>{t.sidebar.newChat}</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
