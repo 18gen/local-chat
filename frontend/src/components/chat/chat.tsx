@@ -84,7 +84,7 @@ export function Chat() {
           {/* On mobile the closed sidebar is fully hidden, so it needs an opener here. */}
           <SidebarTrigger className="md:hidden" />
           <span className="truncate font-medium">
-            {active?.title ?? "local-chat"}
+            {active?.title}
           </span>
         </header>
 
