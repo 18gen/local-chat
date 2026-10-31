@@ -1,0 +1,64 @@
+"use client";
+
+import { useState } from "react";
+import { ArrowUpIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+
+type ComposerProps = {
+  onSend: (text: string) => void;
+  disabled?: boolean;
+};
+
+export function Composer({ onSend, disabled = false }: ComposerProps) {
+  const [value, setValue] = useState("");
+  const canSend = value.trim().length > 0 && !disabled;
+
+  const submit = () => {
+    if (!canSend) return;
+    onSend(value.trim());
+    setValue("");
+  };
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        submit();
+      }}
+      className="flex items-end gap-2 rounded-3xl border bg-background p-2 shadow-sm focus-within:border-ring"
+    >
+      <Textarea
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        onKeyDown={(event) => {
+          // Enter sends, Shift+Enter adds a newline. Skip while an IME
+          // (e.g. Japanese input) is composing so confirming a word doesn't send.
+          if (
+            event.key === "Enter" &&
+            !event.shiftKey &&
+            !event.nativeEvent.isComposing
+          ) {
+            event.preventDefault();
+            submit();
+          }
+        }}
+        placeholder="Ask anything"
+        aria-label="Message"
+        rows={1}
+        autoFocus
+        className="max-h-52 min-h-9 resize-none border-0 bg-transparent px-2 shadow-none focus-visible:ring-0 dark:bg-transparent"
+      />
+      <Button
+        type="submit"
+        size="icon"
+        disabled={!canSend}
+        aria-label="Send message"
+        className="shrink-0 rounded-full"
+      >
+        <ArrowUpIcon />
+      </Button>
+    </form>
+  );
+}
