@@ -44,8 +44,16 @@ export function MessageList({ messages, pending }: MessageListProps) {
               ) : (
                 <div className="whitespace-pre-wrap">{message.content}</div>
               )}
-              {/* Follows the message alignment: right for you, left for replies. */}
-              <MessageFooter>
+              {/* Follows the message alignment: right for you, left for replies.
+                  Your actions stay hidden until hover or keyboard focus on
+                  mouse/trackpad devices; touch screens always show them. */}
+              <MessageFooter
+                className={
+                  isUser
+                    ? "transition-opacity pointer-fine:opacity-0 pointer-fine:group-hover/message:opacity-100 pointer-fine:group-focus-within/message:opacity-100"
+                    : undefined
+                }
+              >
                 <CopyButton text={message.content} />
               </MessageFooter>
             </MessageContent>
