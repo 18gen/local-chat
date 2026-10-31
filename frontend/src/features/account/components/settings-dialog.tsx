@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { mockUser } from "@/lib/mock-user";
+import { mockUser } from "@/features/account/mock-user";
 import { UserAvatar } from "./user-avatar";
 
 const THEME_OPTIONS = [

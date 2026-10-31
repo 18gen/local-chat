@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { mockUser } from "@/lib/mock-user";
+import { mockUser } from "@/features/account/mock-user";
 import { SettingsDialog } from "./settings-dialog";
 import { UserAvatar } from "./user-avatar";
 

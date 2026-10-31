@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { mockUser } from "@/lib/mock-user";
+import { mockUser } from "@/features/account/mock-user";
 
 type UserAvatarProps = {
   size?: ComponentProps<typeof Avatar>["size"];

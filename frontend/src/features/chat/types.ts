@@ -1,6 +1,6 @@
 export type Role = "user" | "assistant";
 
-export type Message = {
+export type ChatMessage = {
   id: string;
   role: Role;
   content: string;
@@ -9,5 +9,5 @@ export type Message = {
 export type Conversation = {
   id: string;
   title: string;
-  messages: Message[];
+  messages: ChatMessage[];
 };

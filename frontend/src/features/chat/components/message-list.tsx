@@ -9,7 +9,7 @@ import {
   MessageFooter,
 } from "@/components/ui/message";
 import { CopyButton } from "./copy-button";
-import type { Message as ChatMessage } from "./types";
+import type { ChatMessage } from "@/features/chat/types";
 
 type MessageListProps = {
   messages: ChatMessage[];
