@@ -45,7 +45,7 @@ export function MessageList({ messages, pending }: MessageListProps) {
             )}
           </MessageScrollerContent>
         </MessageScrollerViewport>
-        <MessageScrollerButton />
+        <MessageScrollerButton className="rounded-full" />
       </MessageScroller>
     </MessageScrollerProvider>
   );
