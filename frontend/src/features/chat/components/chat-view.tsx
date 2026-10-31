@@ -31,9 +31,12 @@ export function ChatView() {
         </div>
       ) : (
         <>
-          <div className="flex-1 overflow-y-auto">
-            <MessageList messages={messages} pending={pending} />
-          </div>
+          {/* Keyed per chat so switching chats reopens each at its last question. */}
+          <MessageList
+            key={activeConversation?.id}
+            messages={messages}
+            pending={pending}
+          />
           <div className="mx-auto w-full max-w-3xl px-4 pb-4">
             <Composer onSend={sendMessage} disabled={!canSend} />
             <p className="mt-2 text-center text-xs text-muted-foreground">

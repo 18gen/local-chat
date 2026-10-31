@@ -1,77 +1,52 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import {
-  Message,
-  MessageContent,
-  MessageFooter,
-} from "@/components/ui/message";
-import { CopyButton } from "./copy-button";
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from "@/components/ui/message-scroller";
 import type { ChatMessage } from "@/features/chat/types";
+import { MessageRow } from "./message-row";
+import { TypingIndicator } from "./typing-indicator";
 
 type MessageListProps = {
   messages: ChatMessage[];
   pending: boolean;
 };
 
+// Follows shadcn's Message Scroller docs: your message is the scroll anchor,
+// so a new question settles near the top with the reply below it; autoScroll
+// follows a reply only while you're at the latest message; and reopening a
+// chat lands on its last question instead of the very bottom.
 export function MessageList({ messages, pending }: MessageListProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length, pending]);
-
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-4 py-6">
-      {messages.map((message) => {
-        const isUser = message.role === "user";
-        // shadcn's Message and Bubble default to text-sm; text-base keeps 16px.
-        return (
-          <Message
-            key={message.id}
-            align={isUser ? "end" : "start"}
-            className="text-base"
+    <MessageScrollerProvider autoScroll defaultScrollPosition="last-anchor">
+      <MessageScroller className="flex-1">
+        <MessageScrollerViewport>
+          {/* gap-3 instead of the default gap-6: each message already has an action row. */}
+          <MessageScrollerContent
+            aria-busy={pending}
+            className="mx-auto w-full max-w-3xl gap-3 px-4 py-6"
           >
-            <MessageContent className="gap-1">
-              {isUser ? (
-                <Bubble align="end" variant="muted">
-                  <BubbleContent className="rounded-3xl px-4 py-2 text-base whitespace-pre-wrap">
-                    {message.content}
-                  </BubbleContent>
-                </Bubble>
-              ) : (
-                <div className="whitespace-pre-wrap">{message.content}</div>
-              )}
-              {/* Follows the message alignment: right for you, left for replies.
-                  Your actions stay hidden until hover or keyboard focus on
-                  mouse/trackpad devices; touch screens always show them. */}
-              <MessageFooter
-                className={
-                  isUser
-                    ? "transition-opacity pointer-fine:opacity-0 pointer-fine:group-hover/message:opacity-100 pointer-fine:group-focus-within/message:opacity-100"
-                    : undefined
-                }
+            {messages.map((message) => (
+              <MessageScrollerItem
+                key={message.id}
+                messageId={message.id}
+                scrollAnchor={message.role === "user"}
               >
-                <CopyButton text={message.content} />
-              </MessageFooter>
-            </MessageContent>
-          </Message>
-        );
-      })}
-      {pending && (
-        <div
-          className="flex gap-1 py-2"
-          role="status"
-          aria-label="Assistant is typing"
-        >
-          <span className="size-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
-          <span className="size-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
-          <span className="size-2 animate-bounce rounded-full bg-muted-foreground" />
-        </div>
-      )}
-      <div ref={bottomRef} />
-    </div>
+                <MessageRow message={message} />
+              </MessageScrollerItem>
+            ))}
+            {pending && (
+              <MessageScrollerItem>
+                <TypingIndicator />
+              </MessageScrollerItem>
+            )}
+          </MessageScrollerContent>
+        </MessageScrollerViewport>
+        <MessageScrollerButton />
+      </MessageScroller>
+    </MessageScrollerProvider>
   );
 }
