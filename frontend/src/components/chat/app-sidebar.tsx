@@ -2,9 +2,11 @@
 
 import { SquarePenIcon } from "lucide-react";
 
+import { AccountMenu } from "@/components/account/account-menu";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -81,6 +83,9 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <AccountMenu />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
