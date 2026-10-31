@@ -27,7 +27,7 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
         event.preventDefault();
         submit();
       }}
-      className="flex items-end gap-2 rounded-4xl border bg-composer p-2 shadow-sm"
+      className="flex items-end gap-2 rounded-4xl border bg-composer p-2 shadow-xs"
     >
       <Textarea
         value={value}

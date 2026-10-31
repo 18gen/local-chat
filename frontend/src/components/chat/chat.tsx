@@ -99,7 +99,7 @@ export function Chat() {
             <div className="flex-1 overflow-y-auto">
               <MessageList messages={messages} pending={pending} />
             </div>
-            <div className="mx-auto w-full max-w-2xl px-4 pb-4">
+            <div className="mx-auto w-full max-w-3xl px-4 pb-4">
               <Composer onSend={handleSend} disabled={pendingId !== null} />
               <p className="mt-2 text-center text-xs text-muted-foreground">
                 Replies are placeholders until the model is connected.
