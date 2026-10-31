@@ -36,10 +36,13 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
         onKeyDown={(event) => {
           // Enter sends, Shift+Enter adds a newline. Skip while an IME
           // (e.g. Japanese input) is composing so confirming a word doesn't send.
+          // Safari reports the confirming Enter with isComposing false, but
+          // with keyCode 229, so check both.
           if (
             event.key === "Enter" &&
             !event.shiftKey &&
-            !event.nativeEvent.isComposing
+            !event.nativeEvent.isComposing &&
+            event.nativeEvent.keyCode !== 229
           ) {
             event.preventDefault();
             submit();
