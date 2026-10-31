@@ -48,11 +48,11 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
         aria-label="Message"
         rows={1}
         autoFocus
-        className="max-h-52 min-h-9 resize-none border-0 bg-transparent px-2 shadow-none focus-visible:ring-0 dark:bg-transparent"
+        className="max-h-52 min-h-7.5 resize-none border-0 bg-transparent pl-2 shadow-none focus-visible:ring-0 dark:bg-transparent"
       />
       <Button
         type="submit"
-        size="icon"
+        size="icon-lg"
         disabled={!canSend}
         aria-label="Send message"
         className="shrink-0 rounded-full"
