@@ -40,12 +40,15 @@ export function AppSidebar({
   };
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="px-2 py-1 text-sm font-semibold">local-chat</div>
+        <div className="px-2 py-1 text-sm font-semibold group-data-[collapsible=icon]:hidden">
+          local-chat
+        </div>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
+              tooltip="New chat"
               onClick={() => {
                 onNewChat();
                 closeOnMobile();
@@ -58,7 +61,8 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
+        {/* Chat titles have no icons, so the list is hidden when collapsed. */}
+        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarGroupLabel>Chats</SidebarGroupLabel>
           <SidebarGroupContent>
             {conversations.length === 0 ? (
