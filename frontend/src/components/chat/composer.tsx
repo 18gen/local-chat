@@ -48,7 +48,7 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
         aria-label="Message"
         rows={1}
         autoFocus
-        className="max-h-52 min-h-7.5 resize-none border-0 bg-transparent pl-2 shadow-none focus-visible:ring-0 dark:bg-transparent"
+        className="max-h-52 text-[17px] leading-7 py-1.5 pl-2 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
       />
       <Button
         type="submit"
@@ -57,7 +57,7 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
         aria-label="Send message"
         className="shrink-0 rounded-full"
       >
-        <ArrowUpIcon />
+        <ArrowUpIcon className="size-5" />
       </Button>
     </form>
   );
