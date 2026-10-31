@@ -45,7 +45,7 @@ export function AppSidebar({
       <SidebarHeader>
         <div className="flex items-center justify-between">
           <span className="px-2 text-sm font-semibold group-data-[collapsible=icon]:hidden">
-            local-chat
+            LocalChat
           </span>
           {/* Same 32px size as the collapsed menu buttons so the icons line up. */}
           <SidebarTrigger size="icon" />

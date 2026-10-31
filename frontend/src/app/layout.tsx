@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "local-chat",
+  title: "LocalChat",
   description: "Local chat app",
 };
 
