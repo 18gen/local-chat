@@ -15,6 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import type { Conversation } from "./types";
@@ -42,8 +43,12 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="px-2 py-1 text-sm font-semibold group-data-[collapsible=icon]:hidden">
-          local-chat
+        <div className="flex items-center justify-between">
+          <span className="px-2 text-sm font-semibold group-data-[collapsible=icon]:hidden">
+            local-chat
+          </span>
+          {/* Same 32px size as the collapsed menu buttons so the icons line up. */}
+          <SidebarTrigger size="icon" />
         </div>
         <SidebarMenu>
           <SidebarMenuItem>
