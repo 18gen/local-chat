@@ -1,3 +1,5 @@
+import { ArrowDownIcon } from "lucide-react";
+
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -7,6 +9,7 @@ import {
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
 import type { ChatMessage } from "@/features/chat/types";
+import { t } from "@/locales";
 import { MessageRow } from "./message-row";
 import { TypingIndicator } from "./typing-indicator";
 
@@ -23,7 +26,8 @@ export function MessageList({ messages, pending }: MessageListProps) {
   return (
     <MessageScrollerProvider autoScroll defaultScrollPosition="last-anchor">
       <MessageScroller className="flex-1">
-        <MessageScrollerViewport>
+        {/* Replaces the library's default English label, "Messages". */}
+        <MessageScrollerViewport aria-label={t.chat.transcript}>
           {/* gap-3 instead of the default gap-6: each message already has an action row. */}
           <MessageScrollerContent
             aria-busy={pending}
@@ -45,7 +49,11 @@ export function MessageList({ messages, pending }: MessageListProps) {
             )}
           </MessageScrollerContent>
         </MessageScrollerViewport>
-        <MessageScrollerButton className="rounded-full" />
+        {/* Same as the default children, with a Japanese label. */}
+        <MessageScrollerButton className="rounded-full">
+          <ArrowDownIcon />
+          <span className="sr-only">{t.chat.scrollToLatest}</span>
+        </MessageScrollerButton>
       </MessageScroller>
     </MessageScrollerProvider>
   );
