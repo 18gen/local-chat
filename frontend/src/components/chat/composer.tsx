@@ -48,7 +48,7 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
         aria-label="Message"
         rows={1}
         autoFocus
-        className="max-h-52 text-[17px] leading-7 py-1.5 pl-2 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
+        className="max-h-52 leading-7 py-1 pl-3 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
       />
       <Button
         type="submit"

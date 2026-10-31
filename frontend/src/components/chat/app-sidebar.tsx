@@ -71,7 +71,7 @@ export function AppSidebar({
           <SidebarGroupLabel>Chats</SidebarGroupLabel>
           <SidebarGroupContent>
             {conversations.length === 0 ? (
-              <p className="px-2 text-xs text-muted-foreground">No chats yet</p>
+              <p className="px-2 text-sm text-muted-foreground">No chats yet</p>
             ) : (
               <SidebarMenu>
                 {conversations.map((conversation) => (
