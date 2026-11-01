@@ -1,6 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/page-header";
+import { nextExpiry } from "@/features/chat/message-retention";
 import { useChat } from "@/features/chat/use-chat";
 import { useMessageTtl } from "@/features/chat/use-message-ttl";
 import { t } from "@/locales";
@@ -31,7 +32,11 @@ export function ChatView() {
         </div>
       ) : (
         <>
-          <MessageList messages={messages} pending={pending} />
+          <MessageList
+            messages={messages}
+            pending={pending}
+            oldestExpiresAt={nextExpiry(messages, ttlMs)}
+          />
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-2 px-4 pb-4">
             <Composer onSend={sendMessage} disabled={pending} />
             <p className="text-center text-xs text-muted-foreground">

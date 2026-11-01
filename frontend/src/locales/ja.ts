@@ -30,6 +30,8 @@ export const ja = {
     autoDeleteOption: (lifetime: string) => `${lifetime}後`,
     autoDeleteLabel: "メッセージを自動消去するまでの時間",
     autoDeleteInfo: "自動消去について",
+    expiryCheckpoint: (time: string) =>
+      `自動消去まで ${time}`,
     autoDeleteHelp: (lifetime: string) =>
       `送信から${lifetime}を過ぎたメッセージは、古いものから順に自動で削除されます。\n削除したメッセージは復元できません。`,
     shortenTitle: "自動消去までの時間を短くしますか？",
