@@ -34,10 +34,11 @@ export function AccountMenu() {
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
-                <UserAvatar />
-                <div className="grid flex-1 text-left leading-tight">
+                <UserAvatar size="lg" />
+                <div className="grid flex-1 gap-0.5 text-left leading-tight">
                   <span className="truncate font-medium">{mockUser.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">
+                  {/* Sidebar color, not the page's gray, which is too faint on navy. */}
+                  <span className="truncate text-sm text-sidebar-foreground/70">
                     {t.account.plans[mockUser.plan]}
                   </span>
                 </div>
