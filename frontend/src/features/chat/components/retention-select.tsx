@@ -1,0 +1,127 @@
+"use client";
+
+import { useState } from "react";
+import { InfoIcon } from "lucide-react";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  isExpired,
+  isTtlOption,
+  TTL_OPTIONS_MS,
+} from "@/features/chat/message-retention";
+import { formatDuration } from "@/features/chat/time-format";
+import type { ChatMessage } from "@/features/chat/types";
+import { t } from "@/locales";
+
+type RetentionSelectProps = {
+  ttlMs: number;
+  onTtlChange: (ttlMs: number) => void;
+  /** The messages on screen, to count what a shorter time would delete. */
+  messages: ChatMessage[];
+};
+
+// "[1時間後 ▾]に自動消去 ⓘ": only the time is a Select; ⓘ explains the rule.
+export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelectProps) {
+  // A shorter time that would delete messages waits for confirmation.
+  const [pending, setPending] = useState<{ ttlMs: number; count: number } | null>(
+    null,
+  );
+  const lifetime = formatDuration(ttlMs);
+
+  const handleChange = (value: string) => {
+    const next = Number(value);
+    if (!isTtlOption(next)) return;
+    const now = Date.now();
+    const count = messages.filter((message) => isExpired(message, now, next)).length;
+    if (count > 0) setPending({ ttlMs: next, count });
+    else onTtlChange(next);
+  };
+
+  return (
+    <>
+      <div className="ml-auto flex items-center gap-1.5 text-sm">
+        <Select value={String(ttlMs)} onValueChange={handleChange}>
+          <SelectTrigger size="sm" aria-label={t.chat.autoDeleteLabel}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent position="popper" align="start">
+            <SelectGroup>
+              {TTL_OPTIONS_MS.map((option) => (
+                <SelectItem key={option} value={String(option)}>
+                  {t.chat.autoDeleteOption(formatDuration(option))}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <span>{t.chat.autoDeleteSuffix}</span>
+        {/* The explanation lives on its own button, so it never gets in the
+            way of choosing a time; a button also opens it on keyboard focus. */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.chat.autoDeleteInfo}
+              className="text-muted-foreground"
+            >
+              <InfoIcon />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" align="end" className="whitespace-pre-line">
+            {t.chat.autoDeleteHelp(lifetime)}
+          </TooltipContent>
+        </Tooltip>
+      </div>
+
+      <AlertDialog
+        open={pending !== null}
+        onOpenChange={(open) => {
+          if (!open) setPending(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.chat.shortenTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.chat.shortenDescription(pending?.count ?? 0)}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pending) onTtlChange(pending.ttlMs);
+              }}
+            >
+              {t.chat.shortenConfirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

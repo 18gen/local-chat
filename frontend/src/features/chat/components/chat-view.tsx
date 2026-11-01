@@ -2,17 +2,21 @@
 
 import { PageHeader } from "@/components/page-header";
 import { useChat } from "@/features/chat/use-chat";
+import { useMessageTtl } from "@/features/chat/use-message-ttl";
 import { t } from "@/locales";
 import { Composer } from "./composer";
 import { MessageList } from "./message-list";
+import { RetentionSelect } from "./retention-select";
 
 export function ChatView() {
-  const { messages, pending, sendMessage } = useChat();
+  const { ttlMs, setTtlMs } = useMessageTtl();
+  const { messages, pending, sendMessage } = useChat(ttlMs);
 
   return (
     <>
       <PageHeader>
         <span className="font-medium">{t.nav.chat}</span>
+        <RetentionSelect ttlMs={ttlMs} onTtlChange={setTtlMs} messages={messages} />
       </PageHeader>
 
       {messages.length === 0 ? (

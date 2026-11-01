@@ -26,6 +26,16 @@ export const ja = {
     emptyTitle: "何をお手伝いしましょうか？",
     aiDisclaimer:
       "AIの回答には誤りが含まれる場合があります。必ずご自身で内容を確認してください。",
+    autoDeleteSuffix: "に自動消去",
+    autoDeleteOption: (lifetime: string) => `${lifetime}後`,
+    autoDeleteLabel: "メッセージを自動消去するまでの時間",
+    autoDeleteInfo: "自動消去について",
+    autoDeleteHelp: (lifetime: string) =>
+      `送信から${lifetime}を過ぎたメッセージは、古いものから順に自動で削除されます。\n削除したメッセージは復元できません。`,
+    shortenTitle: "自動消去までの時間を短くしますか？",
+    shortenDescription: (count: number) =>
+      `${count}件のメッセージがすぐに削除されます。削除したメッセージは復元できません。`,
+    shortenConfirm: "削除して変更",
     mockReply: "これは仮の返信です。モデルはまだ接続されていません。",
     transcript: "メッセージ一覧",
     typing: "返信を作成しています",
@@ -112,7 +122,9 @@ export const ja = {
   },
   common: {
     close: "閉じる",
+    cancel: "キャンセル",
   },
+  durationSeconds: (seconds: number) => `${seconds}秒`,
   duration: (hours: number, minutes: number) =>
     hours > 0
       ? `${hours}時間${minutes > 0 ? `${minutes}分` : ""}`

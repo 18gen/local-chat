@@ -15,9 +15,10 @@ function createMessage(role: ChatMessage["role"], content: string): ChatMessage 
 /**
  * The AI chat's messages. State lives in the component that calls this, so
  * leaving the chat screen discards the conversation; nothing is written to
- * storage, cookies or the console. Messages older than the TTL are deleted.
+ * storage, cookies or the console. Messages older than `ttlMs` are deleted,
+ * and changing it applies to the messages already shown.
  */
-export function useChat() {
+export function useChat(ttlMs: number) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState(false);
   const replyController = useRef<AbortController | null>(null);
@@ -30,8 +31,8 @@ export function useChat() {
   /** Deletes expired messages. Returns false if none had expired yet. */
   const pruneExpired = useEffectEvent((): boolean => {
     const now = Date.now();
-    if (!messages.some((message) => isExpired(message, now))) return false;
-    setMessages((prev) => removeExpired(prev, now));
+    if (!messages.some((message) => isExpired(message, now, ttlMs))) return false;
+    setMessages((prev) => removeExpired(prev, now, ttlMs));
     return true;
   });
 
@@ -39,7 +40,7 @@ export function useChat() {
   // counting down, so it stays correct when background tabs throttle timers
   // or the computer sleeps. Returning to the tab checks again.
   useEffect(() => {
-    const expiresAt = nextExpiry(messages);
+    const expiresAt = nextExpiry(messages, ttlMs);
     if (expiresAt === null) return;
 
     let timer: ReturnType<typeof setTimeout>;
@@ -57,13 +58,16 @@ export function useChat() {
       clearTimeout(timer);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [messages]);
+  }, [messages, ttlMs]);
 
   const sendMessage = (text: string) => {
     if (pending) return;
 
     const userMessage = createMessage("user", text);
-    const history = [...removeExpired(messages, userMessage.createdAt), userMessage];
+    const history = [
+      ...removeExpired(messages, userMessage.createdAt, ttlMs),
+      userMessage,
+    ];
     setMessages((prev) => [...prev, userMessage]);
 
     const controller = new AbortController();
