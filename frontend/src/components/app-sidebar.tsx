@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AccountMenu } from "@/features/account/components/account-menu";
 import { ChatNav } from "@/features/chat/components/chat-nav";
+import { WorkflowNav } from "@/features/workflow/components/workflow-nav";
 import { t } from "@/locales";
 
 export function AppSidebar() {
@@ -34,6 +35,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <ChatNav onNavigate={closeOnMobile} />
+        <WorkflowNav onNavigate={closeOnMobile} />
       </SidebarContent>
       <SidebarFooter>
         <AccountMenu />

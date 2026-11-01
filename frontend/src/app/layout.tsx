@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: t.app.name,
+  // Pages set their own title, e.g. "ワークフロー | LocalChat".
+  title: { default: t.app.name, template: `%s | ${t.app.name}` },
   description: t.app.description,
 };
 
