@@ -38,6 +38,10 @@ export const ja = {
     shortenDescription: (count: number) =>
       `${count}件のメッセージがすぐに削除されます。削除したメッセージは復元できません。`,
     shortenConfirm: "削除して変更",
+    newChat: "新しいチャット",
+    newChatTitle: "新しいチャットを始めますか？",
+    newChatDescription: "現在の会話はすべて削除され、復元できません。",
+    newChatConfirm: "削除して始める",
     mockReply: "これは仮の返信です。モデルはまだ接続されていません。",
     transcript: "メッセージ一覧",
     typing: "返信を作成しています",

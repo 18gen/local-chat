@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+
 import { PageHeader } from "@/components/page-header";
 import { useChatContext } from "@/features/chat/chat-provider";
 import { nextExpiry } from "@/features/chat/message-retention";
@@ -8,16 +10,25 @@ import { t } from "@/locales";
 import { Composer } from "./composer";
 import { ExpireTransition } from "./expire-transition";
 import { MessageList } from "./message-list";
+import { NewChatButton } from "./new-chat-button";
 import { RetentionSelect } from "./retention-select";
 
 export function ChatView() {
-  const { messages, pending, sendMessage, ttlMs, setTtlMs } = useChatContext();
+  const { messages, pending, sendMessage, clearMessages, ttlMs, setTtlMs } =
+    useChatContext();
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const isEmpty = messages.length === 0;
 
   return (
     <>
+      {/* The sidebar and the tab already name this page, so the header holds
+          the main action on the left and the auto-delete setting on the right. */}
       <PageHeader>
-        <span className="font-medium">{t.nav.chat}</span>
+        <NewChatButton
+          disabled={isEmpty}
+          onConfirm={clearMessages}
+          composerRef={composerRef}
+        />
         <RetentionSelect ttlMs={ttlMs} onTtlChange={setTtlMs} messages={messages} />
       </PageHeader>
 
@@ -54,7 +65,7 @@ export function ChatView() {
               isEmpty ? "gap-3" : "gap-2 pb-4",
             )}
           >
-            <Composer onSend={sendMessage} disabled={pending} />
+            <Composer ref={composerRef} onSend={sendMessage} disabled={pending} />
             <p
               className={cn(
                 "text-center text-muted-foreground",

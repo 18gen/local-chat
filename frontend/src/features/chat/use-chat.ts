@@ -15,7 +15,7 @@ import {
 } from "@/features/chat/message-retention";
 import type { ChatMessage } from "@/features/chat/types";
 
-/** Transition type for deletions; message rows animate only for this. */
+/** Transition type for deletions (expiry or a new chat); message rows animate only for this. */
 export const MESSAGE_EXPIRE_TRANSITION = "message-expire";
 
 function createMessage(role: ChatMessage["role"], content: string): ChatMessage {
@@ -107,5 +107,17 @@ export function useChat(ttlMs: number) {
       });
   };
 
-  return { messages, pending, sendMessage };
+  /** Deletes the whole conversation, cancelling a reply in progress. */
+  const clearMessages = () => {
+    replyController.current?.abort();
+    replyController.current = null;
+    // Animates like the last messages expiring.
+    startTransition(() => {
+      addTransitionType(MESSAGE_EXPIRE_TRANSITION);
+      setPending(false);
+      setMessages([]);
+    });
+  };
+
+  return { messages, pending, sendMessage, clearMessages };
 }

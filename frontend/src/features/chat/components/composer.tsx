@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type Ref } from "react";
 import { ArrowUpIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,11 @@ import { t } from "@/locales";
 type ComposerProps = {
   onSend: (text: string) => void;
   disabled?: boolean;
+  /** The text field, e.g. to focus it. */
+  ref?: Ref<HTMLTextAreaElement>;
 };
 
-export function Composer({ onSend, disabled = false }: ComposerProps) {
+export function Composer({ onSend, disabled = false, ref }: ComposerProps) {
   const [value, setValue] = useState("");
   const canSend = value.trim().length > 0 && !disabled;
 
@@ -31,6 +33,7 @@ export function Composer({ onSend, disabled = false }: ComposerProps) {
       className="flex items-end gap-2 rounded-4xl border bg-composer p-2 shadow-xs"
     >
       <Textarea
+        ref={ref}
         value={value}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={(event) => {

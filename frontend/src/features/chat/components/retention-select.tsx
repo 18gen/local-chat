@@ -64,7 +64,7 @@ export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelec
     <>
       <div className="ml-auto flex items-center gap-1.5 text-sm">
         <Select value={String(ttlMs)} onValueChange={handleChange}>
-          <SelectTrigger size="sm" aria-label={t.chat.autoDeleteLabel}>
+          <SelectTrigger aria-label={t.chat.autoDeleteLabel}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent position="popper" align="start">
@@ -77,7 +77,7 @@ export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelec
             </SelectGroup>
           </SelectContent>
         </Select>
-        <span>{t.chat.autoDeleteSuffix}</span>
+        <span className="whitespace-nowrap">{t.chat.autoDeleteSuffix}</span>
         {/* The explanation lives on its own button, so it never gets in the
             way of choosing a time; a button also opens it on keyboard focus. */}
         <Tooltip>
