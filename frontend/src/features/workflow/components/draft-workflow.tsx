@@ -7,7 +7,6 @@ import {
   CommandIcon,
   CopyIcon,
   CornerDownLeftIcon,
-  InfoIcon,
   RotateCcwIcon,
   TriangleAlertIcon,
 } from "lucide-react";
@@ -55,7 +54,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   const draftSection = useRef<HTMLElement>(null);
   const { state: copyState, copy } = useCopyToClipboard();
   const inputId = useId();
-  const draftId = useId();
+  const draftTitleId = useId();
 
   // Cancel generation when the screen goes away.
   useEffect(() => {
@@ -179,24 +178,22 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
 
       {draft !== null && (
         <section ref={draftSection} className="flex scroll-mt-4 flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-heading">{t.workflow.draftTitle}</h2>
-            <Badge variant="warning">
-              {t.workflow.aiDraftBadge}
-            </Badge>
-          </div>
-          <Alert>
-            <InfoIcon />
-            <AlertDescription>{t.workflow.draftReview}</AlertDescription>
-          </Alert>
+          {/* Laid out like the notes field: heading, text box, then a note.
+              The heading names the text box. */}
           <Field>
-            <FieldLabel htmlFor={draftId}>{t.workflow.draftLabel}</FieldLabel>
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 id={draftTitleId} className="text-heading">
+                {t.workflow.draftTitle}
+              </h2>
+              <Badge variant="warning">{t.workflow.aiDraftBadge}</Badge>
+            </div>
             <Textarea
-              id={draftId}
+              aria-labelledby={draftTitleId}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              className="min-h-80 text-body"
+              className="min-h-80 p-2 text-body"
             />
+            <FieldDescription>{t.workflow.draftReview}</FieldDescription>
           </Field>
           <div className="flex flex-wrap gap-3">
             <Button size="xl" onClick={() => void copy(draft)}>

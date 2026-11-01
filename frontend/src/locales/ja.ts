@@ -128,8 +128,7 @@ export const ja = {
     draftTitle: "下書き",
     aiDraftBadge: "要確認・編集可能",
     draftReview:
-      "AIが作成した下書きです。内容を必ず確認し、必要に応じて修正してからご利用ください。",
-    draftLabel: "下書きの内容（編集できます）",
+      "内容を確認してご利用ください。",
     reset: "最初からやり直す",
     resetTitle: "最初からやり直しますか？",
     resetDescription: "入力した内容と下書きは消去されます。選んだ患者はそのままです。",
