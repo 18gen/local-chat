@@ -181,7 +181,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
         <section ref={draftSection} className="flex scroll-mt-4 flex-col gap-4">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-heading">{t.workflow.draftTitle}</h2>
-            <Badge variant="outline" className="border-destructive/50 text-destructive">
+            <Badge variant="warning">
               {t.workflow.aiDraftBadge}
             </Badge>
           </div>

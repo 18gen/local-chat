@@ -102,7 +102,7 @@ export const ja = {
     genders: { male: "男性", female: "女性", other: "その他", unknown: "不明" },
     inpatient: (ward: string, room: string) => `入院中 ${ward} ${room}号室`,
     outpatient: "外来",
-    namesake: "同姓同名",
+    namesake: "同姓同名あり",
     namesakeWarning: "同姓同名の患者がいます。IDと生年月日を確認してください。",
     change: "変更",
     changeLabel: "患者を変更",
@@ -126,7 +126,7 @@ export const ja = {
     generating: "作成しています…",
     failed: "下書きを作成できませんでした。もう一度お試しください。",
     draftTitle: "下書き",
-    aiDraftBadge: "AIによる下書き・要確認",
+    aiDraftBadge: "要確認・編集可能",
     draftReview:
       "AIが作成した下書きです。内容を必ず確認し、必要に応じて修正してからご利用ください。",
     draftLabel: "下書きの内容（編集できます）",

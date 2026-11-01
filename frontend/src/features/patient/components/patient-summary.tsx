@@ -13,11 +13,8 @@ export function PatientSummary({ patient }: { patient: Patient }) {
         <span className="text-caption text-muted-foreground">{patient.kana}</span>
         {patient.hasNamesake && (
           // A highlighted search result recolors all its text; `!` keeps the
-          // warning red.
-          <Badge
-            variant="outline"
-            className="border-destructive/50 text-destructive in-data-highlighted:text-destructive!"
-          >
+          // warning's color.
+          <Badge variant="warning" className="in-data-highlighted:text-warning!">
             {t.patient.namesake}
           </Badge>
         )}

@@ -19,7 +19,7 @@ export function PatientCard({ patient, action }: PatientCardProps) {
       <ItemContent className="gap-2">
         <PatientSummary patient={patient} />
         {patient.hasNamesake && (
-          <p className="flex items-center gap-1.5 text-caption text-destructive">
+          <p className="flex items-center gap-1.5 text-caption text-warning">
             <TriangleAlertIcon className="size-4 shrink-0" aria-hidden />
             {t.patient.namesakeWarning}
           </p>
