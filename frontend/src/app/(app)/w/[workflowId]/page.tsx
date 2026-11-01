@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { ArrowLeftIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
+import { ResetOnLeave } from "@/components/reset-on-leave";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ComingSoon } from "@/features/workflow/components/coming-soon";
@@ -88,8 +89,9 @@ function WorkflowDetailsSkeleton() {
 export default function WorkflowPage({
   params,
 }: PageProps<"/w/[workflowId]">) {
+  // Each run is for one patient, so nothing typed here outlives the visit.
   return (
-    <>
+    <ResetOnLeave>
       <PageHeader>
         <Suspense>
           <WorkflowTitle params={params} />
@@ -109,6 +111,6 @@ export default function WorkflowPage({
           </Suspense>
         </div>
       </div>
-    </>
+    </ResetOnLeave>
   );
 }
