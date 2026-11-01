@@ -23,10 +23,11 @@ function createMessage(role: ChatMessage["role"], content: string): ChatMessage 
 }
 
 /**
- * The AI chat's messages. State lives in the component that calls this, so
- * leaving the chat screen discards the conversation; nothing is written to
- * storage, cookies or the console. Messages older than `ttlMs` are deleted,
- * and changing it applies to the messages already shown.
+ * The AI chat's messages, kept in memory only: nothing is written to storage,
+ * cookies or the console, so reloading or closing the tab ends the
+ * conversation. Next.js keeps the chat page alive while other pages are open,
+ * so the conversation continues after visiting a workflow. Messages older
+ * than `ttlMs` are deleted, and changing it applies to the messages shown.
  */
 export function useChat(ttlMs: number) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
