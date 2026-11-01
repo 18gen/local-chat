@@ -33,9 +33,6 @@ import { SAMPLE_INPUTS } from "@/features/workflow/mock-drafts";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
 import { t } from "@/locales";
 
-// Larger than the default button, for comfortable use by all staff.
-const LARGE_BUTTON = "h-11 px-5 text-base";
-
 type Status = "idle" | "generating" | "ready" | "failed";
 
 /**
@@ -110,7 +107,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
         {draft === null && (
           <div className="flex flex-wrap items-center gap-3">
             <Button
-              className={LARGE_BUTTON}
+              size="xl"
               onClick={generate}
               disabled={generating || input.trim().length === 0}
             >
@@ -119,7 +116,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             </Button>
             <Button
               variant="outline"
-              className={LARGE_BUTTON}
+              size="xl"
               onClick={() => setInput(SAMPLE_INPUTS[workflowId])}
               disabled={generating}
             >
@@ -159,13 +156,13 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             />
           </Field>
           <div className="flex flex-wrap gap-3">
-            <Button className={LARGE_BUTTON} onClick={() => void copy(draft)}>
+            <Button size="xl" onClick={() => void copy(draft)}>
               {copyState === "copied" ? <CheckIcon /> : <CopyIcon />}
               {t.copy[copyState]}
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" className={LARGE_BUTTON}>
+                <Button variant="outline" size="xl">
                   <RotateCcwIcon />
                   {t.workflow.reset}
                 </Button>
