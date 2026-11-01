@@ -26,9 +26,7 @@ export const SAMPLE_INPUTS: Record<DraftWorkflowId, string> = {
 };
 
 export const MOCK_DRAFTS: Record<DraftWorkflowId, string> = {
-  "discharge-summary": `退院サマリー（下書き）
-
-【患者】70代 男性（架空）
+  "discharge-summary": `【患者】70代 男性（架空）
 【診断名】市中肺炎
 【入院時の状態】
 発熱（38.5℃）、咳嗽あり。SpO2 92%（室内気）。胸部X線で右下肺野に浸潤影を認めた。
@@ -38,9 +36,7 @@ export const MOCK_DRAFTS: Record<DraftWorkflowId, string> = {
 食事摂取良好。ADL自立。
 【退院後の方針】
 近医にて経過観察を依頼する。`,
-  "referral-letter": `診療情報提供書（下書き）
-
-○○病院 循環器内科 御侍史
+  "referral-letter": `○○病院 循環器内科 御侍史
 
 【患者】60代 女性（架空）
 【紹介目的】労作時胸部圧迫感の精査をお願いいたします。
@@ -51,9 +47,7 @@ export const MOCK_DRAFTS: Record<DraftWorkflowId, string> = {
 【検査所見】心電図で明らかなST変化は認めませんでした。
 
 ご高診のほど、よろしくお願い申し上げます。`,
-  "note-summary": `診療記録の要約（下書き）
-
-・10/1：腹痛と嘔吐で入院。腸閉塞疑いで絶食・輸液を開始。
+  "note-summary": `・10/1：腹痛と嘔吐で入院。腸閉塞疑いで絶食・輸液を開始。
 ・10/2〜10/3：症状は改善傾向。排ガスあり、流動食を開始。
 ・10/4〜10/5：食事を全粥まで段階的に上げ、摂取良好。排便あり、バイタル安定。
 ・今後：退院の方針について本人・家族へ説明済み。`,
