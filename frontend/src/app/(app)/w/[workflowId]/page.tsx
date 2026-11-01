@@ -2,11 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeftIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import { ResetOnLeave } from "@/components/reset-on-leave";
-import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ComingSoon } from "@/features/workflow/components/coming-soon";
 import { DraftWorkflow } from "@/features/workflow/components/draft-workflow";
@@ -40,9 +46,7 @@ async function WorkflowTitle({
   params,
 }: Pick<PageProps<"/w/[workflowId]">, "params">) {
   const workflow = await resolveWorkflow(params);
-  return (
-    <span className="font-medium">{t.workflow.items[workflow.id].title}</span>
-  );
+  return <BreadcrumbPage>{t.workflow.items[workflow.id].title}</BreadcrumbPage>;
 }
 
 async function WorkflowDetails({
@@ -54,7 +58,7 @@ async function WorkflowDetails({
 
   return (
     <>
-      <div className="mt-4 flex items-start gap-4">
+      <div className="flex items-start gap-4">
         <span className="flex size-15 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Icon className="size-8" aria-hidden />
         </span>
@@ -76,7 +80,7 @@ async function WorkflowDetails({
 
 function WorkflowDetailsSkeleton() {
   return (
-    <div className="mt-4 flex items-start gap-4">
+    <div className="flex items-start gap-4">
       <Skeleton className="size-12 rounded-lg" />
       <div className="flex flex-1 flex-col gap-2 pt-1">
         <Skeleton className="h-7 w-48" />
@@ -92,20 +96,28 @@ export default function WorkflowPage({
   // Each run is for one patient, so nothing typed here outlives the visit.
   return (
     <ResetOnLeave>
+      {/* A breadcrumb rather than a back button: it shows where this page
+          sits, so the link to the list is right however you got here. */}
       <PageHeader>
-        <Suspense>
-          <WorkflowTitle params={params} />
-        </Suspense>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/workflows">{t.workflow.homeTitle}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <Suspense fallback={<Skeleton className="h-4 w-28" />}>
+                <WorkflowTitle params={params} />
+              </Suspense>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </PageHeader>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-3xl px-6 pt-2 pb-12">
-          <Button variant="ghost" asChild className="-ml-2 text-muted-foreground">
-            <Link href="/workflows">
-              <ArrowLeftIcon />
-              {t.workflow.backToList}
-            </Link>
-          </Button>
+        <div className="mx-auto w-full max-w-3xl px-6 pt-4 pb-12">
           <Suspense fallback={<WorkflowDetailsSkeleton />}>
             <WorkflowDetails params={params} />
           </Suspense>

@@ -22,6 +22,10 @@ export const ja = {
     mobileTitle: "サイドバー",
     mobileDescription: "モバイル用のサイドバーを表示します。",
   },
+  breadcrumb: {
+    label: "パンくずリスト",
+    more: "その他の階層",
+  },
   chat: {
     emptyTitle: "何をお手伝いしましょうか？",
     aiDisclaimer:
