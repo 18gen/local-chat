@@ -13,6 +13,7 @@ export const ja = {
     chat: "AIチャット",
     workflows: "ワークフロー",
     workflowList: "ワークフロー一覧",
+    favorite: (title: string) => `${title}をお気に入りに登録`,
   },
   sidebar: {
     toggle: "サイドバーを開閉",

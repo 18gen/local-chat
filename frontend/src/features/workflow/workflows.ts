@@ -31,3 +31,22 @@ export const WORKFLOWS: readonly Workflow[] = [
 export function getWorkflow(id: string): Workflow | undefined {
   return WORKFLOWS.find((workflow) => workflow.id === id);
 }
+
+export function isWorkflowId(value: unknown): value is WorkflowId {
+  return WORKFLOWS.some((workflow) => workflow.id === value);
+}
+
+/**
+ * Favorites first, most recently starred on top (`favorites` is kept in the
+ * order stars were added); the rest keep their original order.
+ */
+export function sortByFavorite(
+  workflows: readonly Workflow[],
+  favorites: readonly WorkflowId[],
+): Workflow[] {
+  const rank = (workflow: Workflow) => {
+    const index = favorites.indexOf(workflow.id);
+    return index === -1 ? -1 : index;
+  };
+  return [...workflows].sort((a, b) => rank(b) - rank(a));
+}

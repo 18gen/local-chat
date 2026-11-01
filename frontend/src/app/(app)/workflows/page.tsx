@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/page-header";
-import { WorkflowCard } from "@/features/workflow/components/workflow-card";
-import { WORKFLOWS } from "@/features/workflow/workflows";
+import { WorkflowGrid } from "@/features/workflow/components/workflow-grid";
 import { t } from "@/locales";
 
 export const metadata: Metadata = {
@@ -19,13 +18,9 @@ export default function WorkflowsPage() {
           <p className="mt-2 text-base text-muted-foreground">
             {t.workflow.homeDescription}
           </p>
-          <ul className="mt-8 grid gap-5 sm:grid-cols-2">
-            {WORKFLOWS.map((workflow) => (
-              <li key={workflow.id}>
-                <WorkflowCard workflow={workflow} />
-              </li>
-            ))}
-          </ul>
+          <div className="mt-8">
+            <WorkflowGrid />
+          </div>
         </div>
       </div>
     </>
