@@ -27,7 +27,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="scheme-dark">
       <SidebarHeader>
         <div className="flex items-center justify-between">
-          <span className="px-3 text-base font-semibold group-data-[collapsible=icon]:hidden">
+          <span className="px-3 text-body font-semibold group-data-[collapsible=icon]:hidden">
             {t.app.name}
           </span>
           {/* Sidebar hover colors instead of the page's ghost button gray. */}

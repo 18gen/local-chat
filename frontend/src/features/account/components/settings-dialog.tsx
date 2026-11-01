@@ -2,6 +2,7 @@
 
 import type { ComponentProps } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +36,7 @@ export function SettingsDialog({
         </DialogHeader>
 
         <section className="flex flex-col gap-3">
-          <h3 className="text-xs font-medium text-muted-foreground">
+          <h3 className="text-caption font-medium">
             {t.settings.account}
           </h3>
           <div className="flex items-center gap-3">
@@ -44,9 +45,9 @@ export function SettingsDialog({
               <p className="truncate font-medium">{mockUser.name}</p>
               <p className="truncate text-muted-foreground">{mockUser.email}</p>
             </div>
-            <span className="ml-auto rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+            <Badge variant="outline" className="ml-auto text-muted-foreground">
               {t.account.plans[mockUser.plan]}
-            </span>
+            </Badge>
           </div>
         </section>
       </DialogContent>

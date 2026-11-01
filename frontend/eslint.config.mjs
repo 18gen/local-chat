@@ -22,6 +22,22 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // Outside shadcn's components, text is sized by role (see globals.css).
+    files: ["src/**/*.tsx"],
+    ignores: ["src/components/ui/**"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "JSXAttribute[name.name='className'] Literal[value=/(^|\\s)([^\\s:]+:)*text-(xs|sm|base|lg|[2-9]?xl)(\\s|$)/]",
+          message:
+            "Size text with a role from globals.css: text-title, text-heading, text-body or text-caption.",
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

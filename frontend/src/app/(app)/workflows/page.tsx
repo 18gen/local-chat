@@ -14,8 +14,8 @@ export default function WorkflowsPage() {
       <PageHeader />
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-6 pt-4 pb-12">
-          <h1 className="text-2xl font-semibold">{t.workflow.homeTitle}</h1>
-          <p className="mt-2 text-base text-muted-foreground">
+          <h1 className="text-title">{t.workflow.homeTitle}</h1>
+          <p className="mt-2 text-body text-muted-foreground">
             {t.workflow.homeDescription}
           </p>
           <div className="mt-8">

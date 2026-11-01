@@ -63,8 +63,8 @@ async function WorkflowDetails({
           <Icon className="size-8" aria-hidden />
         </span>
         <div>
-          <h1 className="text-2xl font-semibold">{text.title}</h1>
-          <p className="mt-1 text-base text-muted-foreground">{text.description}</p>
+          <h1 className="text-title">{text.title}</h1>
+          <p className="mt-1 text-body text-muted-foreground">{text.description}</p>
         </div>
       </div>
       <div className="mt-8">

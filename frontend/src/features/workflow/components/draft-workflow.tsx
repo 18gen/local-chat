@@ -93,7 +93,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-4">
         <Field>
-          <FieldLabel htmlFor={inputId} className="text-base">
+          <FieldLabel htmlFor={inputId} className="text-body">
             {text.inputLabel}
           </FieldLabel>
           <Textarea
@@ -102,7 +102,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             onChange={(event) => setInput(event.target.value)}
             placeholder={text.inputPlaceholder}
             disabled={generating || draft !== null}
-            className="min-h-48 text-base leading-7 p-2"
+            className="min-h-48 p-2 text-body"
           />
           <FieldDescription>{t.workflow.inputDescription}</FieldDescription>
         </Field>
@@ -127,7 +127,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             </Button>
           </div>
         )}
-        <p className="text-sm text-muted-foreground">{t.workflow.mockNotice}</p>
+        <p className="text-caption text-muted-foreground">{t.workflow.mockNotice}</p>
       </section>
 
       {status === "failed" && (
@@ -140,7 +140,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
       {draft !== null && (
         <section ref={draftSection} className="flex scroll-mt-4 flex-col gap-4">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-lg font-semibold">{t.workflow.draftTitle}</h2>
+            <h2 className="text-heading">{t.workflow.draftTitle}</h2>
             <Badge variant="outline" className="border-destructive/50 text-destructive">
               {t.workflow.aiDraftBadge}
             </Badge>
@@ -155,7 +155,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
               id={draftId}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              className="min-h-80 text-base leading-7"
+              className="min-h-80 text-body"
             />
           </Field>
           <div className="flex flex-wrap gap-3">

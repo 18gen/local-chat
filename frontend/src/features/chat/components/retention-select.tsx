@@ -62,7 +62,7 @@ export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelec
 
   return (
     <>
-      <div className="ml-auto flex items-center gap-1.5 text-sm">
+      <div className="ml-auto flex items-center gap-1.5 text-caption">
         <Select value={String(ttlMs)} onValueChange={handleChange}>
           <SelectTrigger aria-label={t.chat.autoDeleteLabel}>
             <SelectValue />

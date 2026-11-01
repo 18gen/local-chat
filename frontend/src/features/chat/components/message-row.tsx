@@ -10,13 +10,13 @@ import { CopyButton } from "./copy-button";
 export function MessageRow({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
 
-  // shadcn's Message and Bubble default to text-sm; text-base keeps 16px.
+  // shadcn's Message and Bubble default to text-sm; messages are body text.
   return (
-    <Message align={isUser ? "end" : "start"} className="text-base">
+    <Message align={isUser ? "end" : "start"} className="text-body">
       <MessageContent className="gap-1">
         {isUser ? (
           <Bubble align="end" variant="muted">
-            <BubbleContent className="rounded-3xl px-4 py-2 text-base whitespace-pre-wrap">
+            <BubbleContent className="rounded-3xl px-4 py-2 text-body whitespace-pre-wrap">
               {message.content}
             </BubbleContent>
           </Bubble>

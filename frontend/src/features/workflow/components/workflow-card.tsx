@@ -34,7 +34,8 @@ export function WorkflowCard({ workflow, starred, onToggleFavorite }: WorkflowCa
         <span className="mb-1 flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Icon className="size-6" aria-hidden />
         </span>
-        <CardTitle className="text-lg">
+        {/* CardTitle sets its own weight, which wins over the role's. */}
+        <CardTitle className="text-heading font-semibold">
           <Link
             href={workflowHref(workflow.id)}
             className="outline-none after:absolute after:inset-0"
@@ -42,7 +43,7 @@ export function WorkflowCard({ workflow, starred, onToggleFavorite }: WorkflowCa
             {text.title}
           </Link>
         </CardTitle>
-        <CardDescription className="text-sm leading-relaxed">
+        <CardDescription className="text-caption">
           {text.description}
         </CardDescription>
         <CardAction>

@@ -55,7 +55,7 @@ export function Composer({ onSend, disabled = false, ref }: ComposerProps) {
         aria-label={t.composer.label}
         rows={1}
         autoFocus
-        className="max-h-52 leading-7 py-1 pl-3 resize-none border-0 bg-transparent shadow-none"
+        className="max-h-52 text-body py-1 pl-3 resize-none border-0 bg-transparent shadow-none"
       />
       <Button
         type="submit"

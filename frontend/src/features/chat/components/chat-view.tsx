@@ -47,7 +47,7 @@ export function ChatView() {
             instead of one morphing into the other. */}
         {isEmpty ? (
           <ExpireTransition key="start">
-            <h1 className="text-2xl font-semibold">{t.chat.emptyTitle}</h1>
+            <h1 className="text-title">{t.chat.emptyTitle}</h1>
           </ExpireTransition>
         ) : (
           <ExpireTransition key="messages">
@@ -66,12 +66,7 @@ export function ChatView() {
             )}
           >
             <Composer ref={composerRef} onSend={sendMessage} disabled={pending} />
-            <p
-              className={cn(
-                "text-center text-muted-foreground",
-                isEmpty ? "text-sm" : "text-xs",
-              )}
-            >
+            <p className="text-center text-caption text-muted-foreground">
               {t.chat.aiDisclaimer}
             </p>
           </div>
