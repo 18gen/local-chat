@@ -391,6 +391,9 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+// Collapsed, the label is only faded out. pointer-events-none keeps it from
+// covering the menu buttons, and whitespace-nowrap stops Japanese text, which
+// can break between any characters, wrapping and spilling over them.
 function SidebarGroupLabel({
   className,
   asChild = false,
@@ -403,7 +406,7 @@ function SidebarGroupLabel({
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        "flex h-9 shrink-0 items-center rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-9 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        "flex h-9 shrink-0 items-center rounded-md px-3 text-sm font-medium whitespace-nowrap text-sidebar-foreground/70 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-9 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         className
       )}
       {...props}
