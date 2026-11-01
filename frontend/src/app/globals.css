@@ -26,6 +26,8 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
   --color-composer: var(--composer);
+  --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -93,6 +95,9 @@
   --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: oklch(0.8 0.1 249);
   --composer: var(--background);
+  /* Tooltips match the sidebar: navy with white text (14:1). */
+  --tooltip: var(--sidebar);
+  --tooltip-foreground: var(--sidebar-foreground);
 }
 
 @layer base {

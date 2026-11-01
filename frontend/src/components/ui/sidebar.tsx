@@ -289,7 +289,6 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       aria-label={t.sidebar.toggle}
       tabIndex={-1}
       onClick={toggleSidebar}
-      title={t.sidebar.toggle}
       className={cn(
         "absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2",
         "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
@@ -451,7 +450,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
     <ul
       data-slot="sidebar-menu"
       data-sidebar="menu"
-      className={cn("flex w-full min-w-0 flex-col gap-0", className)}
+      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
       {...props}
     />
   )
@@ -534,6 +533,10 @@ function SidebarMenuButton({
       <TooltipContent
         side="right"
         align="center"
+        // Same 16px as the open sidebar's labels, and clear of the strip so
+        // the arrow points at the button over the page.
+        sideOffset={12}
+        className="text-base"
         hidden={state !== "collapsed" || isMobile}
         {...tooltip}
       />

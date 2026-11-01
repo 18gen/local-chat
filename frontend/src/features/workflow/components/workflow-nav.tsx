@@ -15,6 +15,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useFlip } from "@/hooks/use-flip";
 import {
   onBeforeFavoritesChange,
@@ -43,12 +48,20 @@ export function WorkflowNav({ onNavigate }: WorkflowNavProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{t.nav.workflows}</SidebarGroupLabel>
-      <SidebarGroupAction asChild title={t.nav.workflowList}>
-        <Link href="/workflows" onClick={onNavigate}>
-          <LayoutGridIcon />
-          <span className="sr-only">{t.nav.workflowList}</span>
-        </Link>
-      </SidebarGroupAction>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <SidebarGroupAction asChild>
+            <Link href="/workflows" onClick={onNavigate}>
+              <LayoutGridIcon />
+              <span className="sr-only">{t.nav.workflowList}</span>
+            </Link>
+          </SidebarGroupAction>
+        </TooltipTrigger>
+        {/* Clear of the sidebar's edge, like the other sidebar tooltips. */}
+        <TooltipContent side="right" sideOffset={24}>
+          {t.nav.workflowList}
+        </TooltipContent>
+      </Tooltip>
       <SidebarGroupContent>
         <SidebarMenu ref={containerRef}>
           {sortByFavorite(WORKFLOWS, favorites).map((workflow) => {

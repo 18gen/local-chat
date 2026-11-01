@@ -17,6 +17,8 @@ export const ja = {
   },
   sidebar: {
     toggle: "サイドバーを開閉",
+    open: "サイドバーを開く",
+    close: "サイドバーを閉じる",
     mobileTitle: "サイドバー",
     mobileDescription: "モバイル用のサイドバーを表示します。",
   },

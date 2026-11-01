@@ -32,6 +32,8 @@ export function AccountMenu() {
               <SidebarMenuButton
                 ref={triggerRef}
                 size="lg"
+                // Shown only when the sidebar is collapsed to the avatar.
+                tooltip={mockUser.name}
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <UserAvatar size="lg" />
