@@ -25,7 +25,11 @@ import {
   onBeforeFavoritesChange,
   useFavoriteWorkflows,
 } from "@/features/workflow/use-favorite-workflows";
-import { sortByFavorite, WORKFLOWS } from "@/features/workflow/workflows";
+import {
+  sortByFavorite,
+  workflowHref,
+  WORKFLOWS,
+} from "@/features/workflow/workflows";
 import { t } from "@/locales";
 import { FavoriteStarIcon } from "./favorite-star-icon";
 
@@ -65,7 +69,7 @@ export function WorkflowNav({ onNavigate }: WorkflowNavProps) {
       <SidebarGroupContent>
         <SidebarMenu ref={containerRef}>
           {sortByFavorite(WORKFLOWS, favorites).map((workflow) => {
-            const href = `/workflows/${workflow.id}`;
+            const href = workflowHref(workflow.id);
             const active = pathname === href;
             const starred = favorites.includes(workflow.id);
             const title = t.workflow.items[workflow.id].title;

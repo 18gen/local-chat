@@ -32,6 +32,11 @@ export function getWorkflow(id: string): Workflow | undefined {
   return WORKFLOWS.find((workflow) => workflow.id === id);
 }
 
+/** A workflow's page. Short like ChatGPT's /g/; the list stays at /workflows. */
+export function workflowHref(id: WorkflowId) {
+  return `/w/${id}`;
+}
+
 export function isWorkflowId(value: unknown): value is WorkflowId {
   return WORKFLOWS.some((workflow) => workflow.id === value);
 }

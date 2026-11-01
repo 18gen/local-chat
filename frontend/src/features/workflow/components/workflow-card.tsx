@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Workflow } from "@/features/workflow/workflows";
+import { workflowHref, type Workflow } from "@/features/workflow/workflows";
 import { t } from "@/locales";
 import { FavoriteStarIcon } from "./favorite-star-icon";
 
@@ -36,7 +36,7 @@ export function WorkflowCard({ workflow, starred, onToggleFavorite }: WorkflowCa
         </span>
         <CardTitle className="text-lg">
           <Link
-            href={`/workflows/${workflow.id}`}
+            href={workflowHref(workflow.id)}
             className="outline-none after:absolute after:inset-0"
           >
             {text.title}

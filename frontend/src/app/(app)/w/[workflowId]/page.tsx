@@ -19,7 +19,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: PageProps<"/workflows/[workflowId]">): Promise<Metadata> {
+}: PageProps<"/w/[workflowId]">): Promise<Metadata> {
   const workflow = getWorkflow((await params).workflowId);
   return workflow ? { title: t.workflow.items[workflow.id].title } : {};
 }
@@ -28,7 +28,7 @@ export async function generateMetadata({
 // URL is only read inside <Suspense>, as in Next.js's "Move URL data behind
 // Suspense" guide.
 async function resolveWorkflow(
-  params: PageProps<"/workflows/[workflowId]">["params"],
+  params: PageProps<"/w/[workflowId]">["params"],
 ) {
   const workflow = getWorkflow((await params).workflowId);
   if (!workflow) notFound();
@@ -37,7 +37,7 @@ async function resolveWorkflow(
 
 async function WorkflowTitle({
   params,
-}: Pick<PageProps<"/workflows/[workflowId]">, "params">) {
+}: Pick<PageProps<"/w/[workflowId]">, "params">) {
   const workflow = await resolveWorkflow(params);
   return (
     <span className="font-medium">{t.workflow.items[workflow.id].title}</span>
@@ -46,7 +46,7 @@ async function WorkflowTitle({
 
 async function WorkflowDetails({
   params,
-}: Pick<PageProps<"/workflows/[workflowId]">, "params">) {
+}: Pick<PageProps<"/w/[workflowId]">, "params">) {
   const workflow = await resolveWorkflow(params);
   const text = t.workflow.items[workflow.id];
   const Icon = workflow.icon;
@@ -87,7 +87,7 @@ function WorkflowDetailsSkeleton() {
 
 export default function WorkflowPage({
   params,
-}: PageProps<"/workflows/[workflowId]">) {
+}: PageProps<"/w/[workflowId]">) {
   return (
     <>
       <PageHeader>
