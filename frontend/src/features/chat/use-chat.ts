@@ -1,0 +1,91 @@
+import { useEffect, useEffectEvent, useRef, useState } from "react";
+
+import { generateReply } from "@/features/chat/generate-reply";
+import {
+  isExpired,
+  nextExpiry,
+  removeExpired,
+} from "@/features/chat/message-retention";
+import type { ChatMessage } from "@/features/chat/types";
+
+function createMessage(role: ChatMessage["role"], content: string): ChatMessage {
+  return { id: crypto.randomUUID(), role, content, createdAt: Date.now() };
+}
+
+/**
+ * The AI chat's messages. State lives in the component that calls this, so
+ * leaving the chat screen discards the conversation; nothing is written to
+ * storage, cookies or the console. Messages older than the TTL are deleted.
+ */
+export function useChat() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [pending, setPending] = useState(false);
+  const replyController = useRef<AbortController | null>(null);
+
+  // Cancel an in-flight reply when the chat screen goes away.
+  useEffect(() => {
+    return () => replyController.current?.abort();
+  }, []);
+
+  /** Deletes expired messages. Returns false if none had expired yet. */
+  const pruneExpired = useEffectEvent((): boolean => {
+    const now = Date.now();
+    if (!messages.some((message) => isExpired(message, now))) return false;
+    setMessages((prev) => removeExpired(prev, now));
+    return true;
+  });
+
+  // Expiry compares the clock with each message's createdAt instead of
+  // counting down, so it stays correct when background tabs throttle timers
+  // or the computer sleeps. Returning to the tab checks again.
+  useEffect(() => {
+    const expiresAt = nextExpiry(messages);
+    if (expiresAt === null) return;
+
+    let timer: ReturnType<typeof setTimeout>;
+    // Retry shortly if the timer fires a moment before the clock agrees.
+    const check = () => {
+      if (!pruneExpired()) timer = setTimeout(check, 1000);
+    };
+    timer = setTimeout(check, Math.max(0, expiresAt - Date.now()));
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") pruneExpired();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [messages]);
+
+  const sendMessage = (text: string) => {
+    if (pending) return;
+
+    const userMessage = createMessage("user", text);
+    const history = [...removeExpired(messages, userMessage.createdAt), userMessage];
+    setMessages((prev) => [...prev, userMessage]);
+
+    const controller = new AbortController();
+    replyController.current = controller;
+    setPending(true);
+
+    generateReply(history, controller.signal)
+      .then((reply) =>
+        setMessages((prev) => [...prev, createMessage("assistant", reply)]),
+      )
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        // Log the error only; message content must never reach the console.
+        console.error("Failed to generate a reply:", error);
+      })
+      .finally(() => {
+        if (replyController.current === controller) {
+          replyController.current = null;
+          setPending(false);
+        }
+      });
+  };
+
+  return { messages, pending, sendMessage };
+}

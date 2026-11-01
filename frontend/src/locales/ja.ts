@@ -2,20 +2,25 @@
 // screen-reader-only text, tooltips and placeholders. Developer-facing text
 // (thrown errors, console output, comments) stays in English.
 export const ja = {
+  /** BCP 47 tag for Intl date and number formatting. */
+  locale: "ja-JP",
   app: {
     name: "LocalChat",
     description: "ローカルチャットアプリ",
   },
+  nav: {
+    chatGroup: "チャット",
+    chat: "AIチャット",
+  },
   sidebar: {
     toggle: "サイドバーを開閉",
-    newChat: "新しいチャット",
-    history: "チャット履歴",
-    historyEmpty: "まだチャットはありません",
     mobileTitle: "サイドバー",
     mobileDescription: "モバイル用のサイドバーを表示します。",
   },
   chat: {
     emptyTitle: "何をお手伝いしましょうか？",
+    retentionNotice: (lifetime: string) =>
+      `メッセージは${lifetime}たつと自動的に削除され、この画面を離れるとすべて消去されます。`,
     placeholderNotice: "モデルが接続されるまで、返信は仮のテキストです。",
     mockReply: "これは仮の返信です。モデルはまだ接続されていません。",
     transcript: "メッセージ一覧",
@@ -52,4 +57,8 @@ export const ja = {
   common: {
     close: "閉じる",
   },
+  duration: (hours: number, minutes: number) =>
+    hours > 0
+      ? `${hours}時間${minutes > 0 ? `${minutes}分` : ""}`
+      : `${minutes}分`,
 } as const;

@@ -1,47 +1,40 @@
 "use client";
 
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useChatSession } from "@/features/chat/chat-session";
+import { PageHeader } from "@/components/page-header";
+import { MESSAGE_TTL_MS } from "@/features/chat/message-retention";
+import { formatDuration } from "@/features/chat/time-format";
+import { useChat } from "@/features/chat/use-chat";
 import { t } from "@/locales";
 import { Composer } from "./composer";
 import { MessageList } from "./message-list";
 
 export function ChatView() {
-  const { activeConversation, pendingConversationId, sendMessage } =
-    useChatSession();
-  const messages = activeConversation?.messages ?? [];
-  const pending =
-    activeConversation !== null &&
-    pendingConversationId === activeConversation.id;
-  const canSend = pendingConversationId === null;
+  const { messages, pending, sendMessage } = useChat();
+  const retentionNotice = t.chat.retentionNotice(formatDuration(MESSAGE_TTL_MS));
 
   return (
     <>
-      <header className="flex h-12 shrink-0 items-center gap-2 px-3">
-        {/* On mobile the closed sidebar is fully hidden, so it needs an opener here. */}
-        <SidebarTrigger className="md:hidden" />
-        <span className="truncate font-medium">{activeConversation?.title}</span>
-      </header>
+      <PageHeader>
+        <span className="font-medium">{t.nav.chat}</span>
+      </PageHeader>
 
       {messages.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 pb-16">
           <h1 className="text-2xl font-semibold">{t.chat.emptyTitle}</h1>
-          <div className="w-full max-w-3xl">
-            <Composer onSend={sendMessage} disabled={!canSend} />
+          <div className="flex w-full max-w-3xl flex-col gap-3">
+            <Composer onSend={sendMessage} disabled={pending} />
+            <p className="text-center text-sm text-muted-foreground">
+              {retentionNotice}
+            </p>
           </div>
         </div>
       ) : (
         <>
-          {/* Keyed per chat so switching chats reopens each at its last question. */}
-          <MessageList
-            key={activeConversation?.id}
-            messages={messages}
-            pending={pending}
-          />
-          <div className="mx-auto w-full max-w-3xl px-4 pb-4">
-            <Composer onSend={sendMessage} disabled={!canSend} />
-            <p className="mt-2 text-center text-xs text-muted-foreground">
-              {t.chat.placeholderNotice}
+          <MessageList messages={messages} pending={pending} />
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-2 px-4 pb-4">
+            <Composer onSend={sendMessage} disabled={pending} />
+            <p className="text-center text-xs text-muted-foreground">
+              {retentionNotice} {t.chat.placeholderNotice}
             </p>
           </div>
         </>

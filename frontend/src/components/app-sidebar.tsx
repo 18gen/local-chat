@@ -10,8 +10,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { AccountMenu } from "@/features/account/components/account-menu";
-import { ChatHistory } from "@/features/chat/components/chat-history";
-import { NewChatButton } from "@/features/chat/components/new-chat-button";
+import { ChatNav } from "@/features/chat/components/chat-nav";
 import { t } from "@/locales";
 
 export function AppSidebar() {
@@ -32,10 +31,9 @@ export function AppSidebar() {
           {/* Same 32px size as the collapsed menu buttons so the icons line up. */}
           <SidebarTrigger size="icon" />
         </div>
-        <NewChatButton onNavigate={closeOnMobile} />
       </SidebarHeader>
       <SidebarContent>
-        <ChatHistory onNavigate={closeOnMobile} />
+        <ChatNav onNavigate={closeOnMobile} />
       </SidebarContent>
       <SidebarFooter>
         <AccountMenu />
