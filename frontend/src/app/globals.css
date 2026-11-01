@@ -105,7 +105,8 @@
 }
 
 /* Chat deletions (React <ViewTransition>, transition type "message-expire"):
-   the expired exchange fades out while the rows below slide up. */
+   the expired exchange fades out while the rows below slide up. When nothing
+   is left, the composer slides to the center as the start screen fades in. */
 ::view-transition-group(.message-expire) {
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.2, 0, 0, 1);

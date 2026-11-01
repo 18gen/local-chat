@@ -4,14 +4,17 @@ import { PageHeader } from "@/components/page-header";
 import { nextExpiry } from "@/features/chat/message-retention";
 import { useChat } from "@/features/chat/use-chat";
 import { useMessageTtl } from "@/features/chat/use-message-ttl";
+import { cn } from "@/lib/utils";
 import { t } from "@/locales";
 import { Composer } from "./composer";
+import { ExpireTransition } from "./expire-transition";
 import { MessageList } from "./message-list";
 import { RetentionSelect } from "./retention-select";
 
 export function ChatView() {
   const { ttlMs, setTtlMs } = useMessageTtl();
   const { messages, pending, sendMessage } = useChat(ttlMs);
+  const isEmpty = messages.length === 0;
 
   return (
     <>
@@ -20,31 +23,51 @@ export function ChatView() {
         <RetentionSelect ttlMs={ttlMs} onTtlChange={setTtlMs} messages={messages} />
       </PageHeader>
 
-      {messages.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 pb-16">
-          <h1 className="text-2xl font-semibold">{t.chat.emptyTitle}</h1>
-          <div className="flex w-full max-w-3xl flex-col gap-3">
+      {/* The start screen and the conversation share one layout with the
+          composer at the same place in the tree, so React keeps it when the
+          last messages expire: a half-written message, focus and IME input
+          survive. The composer is the same width in both, so it slides to
+          the center cleanly as the messages fade out. */}
+      <div
+        className={cn(
+          "flex min-h-0 flex-1 flex-col",
+          isEmpty && "items-center justify-center gap-6 pb-16",
+        )}
+      >
+        {/* Different keys, so the messages fade out and the title fades in
+            instead of one morphing into the other. */}
+        {isEmpty ? (
+          <ExpireTransition key="start">
+            <h1 className="text-2xl font-semibold">{t.chat.emptyTitle}</h1>
+          </ExpireTransition>
+        ) : (
+          <ExpireTransition key="messages">
+            <MessageList
+              messages={messages}
+              pending={pending}
+              oldestExpiresAt={nextExpiry(messages, ttlMs)}
+            />
+          </ExpireTransition>
+        )}
+        <ExpireTransition>
+          <div
+            className={cn(
+              "mx-auto flex w-full max-w-3xl flex-col px-4",
+              isEmpty ? "gap-3" : "gap-2 pb-4",
+            )}
+          >
             <Composer onSend={sendMessage} disabled={pending} />
-            <p className="text-center text-sm text-muted-foreground">
+            <p
+              className={cn(
+                "text-center text-muted-foreground",
+                isEmpty ? "text-sm" : "text-xs",
+              )}
+            >
               {t.chat.aiDisclaimer}
             </p>
           </div>
-        </div>
-      ) : (
-        <>
-          <MessageList
-            messages={messages}
-            pending={pending}
-            oldestExpiresAt={nextExpiry(messages, ttlMs)}
-          />
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-2 px-4 pb-4">
-            <Composer onSend={sendMessage} disabled={pending} />
-            <p className="text-center text-xs text-muted-foreground">
-              {t.chat.aiDisclaimer}
-            </p>
-          </div>
-        </>
-      )}
+        </ExpireTransition>
+      </div>
     </>
   );
 }
