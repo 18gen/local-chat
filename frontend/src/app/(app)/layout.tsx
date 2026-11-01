@@ -1,13 +1,16 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { ChatProvider } from "@/features/chat/chat-provider";
 
-// Chat messages are held by the chat page itself, not here, so leaving the
-// chat screen discards the conversation.
+// The chat lives here rather than in the chat page, so the conversation keeps
+// going (and expiring) while other pages are open.
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="h-svh">{children}</SidebarInset>
-    </SidebarProvider>
+    <ChatProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className="h-svh">{children}</SidebarInset>
+      </SidebarProvider>
+    </ChatProvider>
   );
 }

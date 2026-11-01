@@ -1,9 +1,8 @@
 "use client";
 
 import { PageHeader } from "@/components/page-header";
+import { useChatContext } from "@/features/chat/chat-provider";
 import { nextExpiry } from "@/features/chat/message-retention";
-import { useChat } from "@/features/chat/use-chat";
-import { useMessageTtl } from "@/features/chat/use-message-ttl";
 import { cn } from "@/lib/utils";
 import { t } from "@/locales";
 import { Composer } from "./composer";
@@ -12,8 +11,7 @@ import { MessageList } from "./message-list";
 import { RetentionSelect } from "./retention-select";
 
 export function ChatView() {
-  const { ttlMs, setTtlMs } = useMessageTtl();
-  const { messages, pending, sendMessage } = useChat(ttlMs);
+  const { messages, pending, sendMessage, ttlMs, setTtlMs } = useChatContext();
   const isEmpty = messages.length === 0;
 
   return (

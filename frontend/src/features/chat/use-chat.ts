@@ -25,16 +25,17 @@ function createMessage(role: ChatMessage["role"], content: string): ChatMessage 
 /**
  * The AI chat's messages, kept in memory only: nothing is written to storage,
  * cookies or the console, so reloading or closing the tab ends the
- * conversation. Next.js keeps the chat page alive while other pages are open,
- * so the conversation continues after visiting a workflow. Messages older
- * than `ttlMs` are deleted, and changing it applies to the messages shown.
+ * conversation. Used by ChatProvider in the app layout, so it keeps running
+ * while other pages are open. Messages older than `ttlMs` are deleted, and
+ * changing it applies to the messages shown.
  */
 export function useChat(ttlMs: number) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState(false);
   const replyController = useRef<AbortController | null>(null);
 
-  // Cancel an in-flight reply when the chat screen goes away.
+  // Cancel an in-flight reply if the chat goes away, e.g. on the 404 page,
+  // which is outside the app layout.
   useEffect(() => {
     return () => replyController.current?.abort();
   }, []);
