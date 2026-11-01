@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentProps } from "react";
+import { CommandIcon } from "lucide-react";
 
 import { Kbd } from "@/components/ui/kbd";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
@@ -22,8 +23,19 @@ type SidebarToggleProps = Pick<
 
 // Rendered only inside the open tooltip, i.e. in the browser, so checking the
 // OS here can't cause a server/client mismatch. Most hospital PCs are Windows.
+// ⌘ is an icon, as on the draft button: the character draws too thin.
 function ToggleShortcut() {
-  return <Kbd>{isMac() ? "⌘B" : "Ctrl+B"}</Kbd>;
+  return (
+    <Kbd className="gap-0.5">
+      {isMac() ? (
+        <>
+          <CommandIcon />B
+        </>
+      ) : (
+        "Ctrl+B"
+      )}
+    </Kbd>
+  );
 }
 
 // Opens and closes the sidebar, from its header or, in narrow windows where
