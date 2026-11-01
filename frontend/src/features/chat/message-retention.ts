@@ -26,12 +26,18 @@ export function isTtlOption(value: unknown): value is number {
   return typeof value === "number" && TTL_OPTIONS_MS.includes(value);
 }
 
-export function isExpired(
-  message: ChatMessage,
-  now: number,
-  ttlMs: number,
-): boolean {
-  return now - message.createdAt >= ttlMs;
+// Messages leave an exchange at a time: each AI response together with
+// everything sent since the previous response. The response holds the timer,
+// so a question still waiting for its answer isn't scheduled yet.
+function exchangeTimes(messages: ChatMessage[]): (number | null)[] {
+  const times: (number | null)[] = messages.map(() => null);
+  let start = 0;
+  messages.forEach((message, index) => {
+    if (message.role !== "assistant") return;
+    times.fill(message.createdAt, start, index + 1);
+    start = index + 1;
+  });
+  return times;
 }
 
 export function removeExpired(
@@ -39,15 +45,35 @@ export function removeExpired(
   now: number,
   ttlMs: number,
 ): ChatMessage[] {
-  return messages.filter((message) => !isExpired(message, now, ttlMs));
+  const times = exchangeTimes(messages);
+  return messages.filter((_, index) => {
+    const time = times[index];
+    return time === null || now - time < ttlMs;
+  });
 }
 
-/** When the oldest message expires, or null if there are none. */
+export function countExpired(
+  messages: ChatMessage[],
+  now: number,
+  ttlMs: number,
+): number {
+  return messages.length - removeExpired(messages, now, ttlMs).length;
+}
+
+/** When the oldest exchange expires, or null until a response exists. */
 export function nextExpiry(
   messages: ChatMessage[],
   ttlMs: number,
 ): number | null {
-  return messages.length > 0
-    ? Math.min(...messages.map((message) => message.createdAt)) + ttlMs
-    : null;
+  const oldestResponse = messages.find((message) => message.role === "assistant");
+  return oldestResponse ? oldestResponse.createdAt + ttlMs : null;
+}
+
+/**
+ * Index just past the oldest exchange (its AI response): everything before
+ * it is deleted next. Null until a response exists.
+ */
+export function oldestExchangeEnd(messages: ChatMessage[]): number | null {
+  const index = messages.findIndex((message) => message.role === "assistant");
+  return index === -1 ? null : index + 1;
 }

@@ -100,6 +100,32 @@
   --tooltip-foreground: var(--sidebar-foreground);
 }
 
+/* Chat deletions (React <ViewTransition>, transition type "message-expire"):
+   the expired exchange fades out while the rows below slide up. */
+::view-transition-group(.message-expire) {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+::view-transition-old(.message-expire),
+::view-transition-new(.message-expire) {
+  animation-duration: 400ms;
+}
+
+/* Deletions start on a timer, so keep the page clickable while one runs. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* From the Next.js view transitions guide. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

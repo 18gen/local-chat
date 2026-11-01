@@ -28,7 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  isExpired,
+  countExpired,
   isTtlOption,
   TTL_OPTIONS_MS,
 } from "@/features/chat/message-retention";
@@ -55,7 +55,7 @@ export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelec
     const next = Number(value);
     if (!isTtlOption(next)) return;
     const now = Date.now();
-    const count = messages.filter((message) => isExpired(message, now, next)).length;
+    const count = countExpired(messages, now, next);
     if (count > 0) setPending({ ttlMs: next, count });
     else onTtlChange(next);
   };

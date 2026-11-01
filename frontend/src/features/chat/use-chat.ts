@@ -1,12 +1,22 @@
-import { useEffect, useEffectEvent, useRef, useState } from "react";
+import {
+  addTransitionType,
+  startTransition,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from "react";
 
 import { generateReply } from "@/features/chat/generate-reply";
 import {
-  isExpired,
+  countExpired,
   nextExpiry,
   removeExpired,
 } from "@/features/chat/message-retention";
 import type { ChatMessage } from "@/features/chat/types";
+
+/** Transition type for deletions; message rows animate only for this. */
+export const MESSAGE_EXPIRE_TRANSITION = "message-expire";
 
 function createMessage(role: ChatMessage["role"], content: string): ChatMessage {
   return { id: crypto.randomUUID(), role, content, createdAt: Date.now() };
@@ -31,8 +41,12 @@ export function useChat(ttlMs: number) {
   /** Deletes expired messages. Returns false if none had expired yet. */
   const pruneExpired = useEffectEvent((): boolean => {
     const now = Date.now();
-    if (!messages.some((message) => isExpired(message, now, ttlMs))) return false;
-    setMessages((prev) => removeExpired(prev, now, ttlMs));
+    if (countExpired(messages, now, ttlMs) === 0) return false;
+    // A typed transition, so only the message rows animate (see MessageList).
+    startTransition(() => {
+      addTransitionType(MESSAGE_EXPIRE_TRANSITION);
+      setMessages((prev) => removeExpired(prev, now, ttlMs));
+    });
     return true;
   });
 

@@ -33,7 +33,7 @@ export const ja = {
     expiryCheckpoint: (time: string) =>
       `自動消去まで ${time}`,
     autoDeleteHelp: (lifetime: string) =>
-      `送信から${lifetime}を過ぎたメッセージは、古いものから順に自動で削除されます。\n削除したメッセージは復元できません。`,
+      `回答から${lifetime}を過ぎると、その回答とそれまでのやり取りが古いものから順に自動で削除されます。\n削除したメッセージは復元できません。`,
     shortenTitle: "自動消去までの時間を短くしますか？",
     shortenDescription: (count: number) =>
       `${count}件のメッセージがすぐに削除されます。削除したメッセージは復元できません。`,
