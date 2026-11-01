@@ -149,7 +149,6 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             </Button>
           </div>
         )}
-        <p className="text-caption text-muted-foreground">{t.workflow.mockNotice}</p>
       </section>
 
       {status === "failed" && (
