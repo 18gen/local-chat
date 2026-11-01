@@ -189,13 +189,21 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground outline-none [&>button]:hidden"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
             } as React.CSSProperties
           }
           side={side}
+          // Focus the drawer itself when it opens. By default Radix focuses
+          // its first button, the sidebar toggle, and focus opens its tooltip.
+          onOpenAutoFocus={(event) => {
+            event.preventDefault()
+            if (event.currentTarget instanceof HTMLElement) {
+              event.currentTarget.focus()
+            }
+          }}
         >
           <SheetHeader className="sr-only">
             <SheetTitle>{t.sidebar.mobileTitle}</SheetTitle>
