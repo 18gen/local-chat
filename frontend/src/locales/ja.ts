@@ -47,15 +47,8 @@ export const ja = {
   },
   settings: {
     title: "設定",
-    description: "アカウント情報と表示の設定",
+    description: "アカウント情報",
     account: "アカウント",
-    appearance: "外観",
-    theme: "テーマ",
-    themes: {
-      system: "システム",
-      light: "ライト",
-      dark: "ダーク",
-    },
   },
   workflow: {
     homeTitle: "ワークフロー",

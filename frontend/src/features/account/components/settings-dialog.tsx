@@ -1,7 +1,6 @@
 "use client";
 
 import type { ComponentProps } from "react";
-import { useTheme } from "next-themes";
 
 import {
   Dialog,
@@ -10,21 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { mockUser } from "@/features/account/mock-user";
 import { t } from "@/locales";
 import { UserAvatar } from "./user-avatar";
-
-// next-themes values; each label is t.settings.themes[value].
-const THEME_OPTIONS = ["system", "light", "dark"] as const;
 
 type SettingsDialogProps = {
   open: boolean;
@@ -37,8 +24,6 @@ export function SettingsDialog({
   onOpenChange,
   onCloseAutoFocus,
 }: SettingsDialogProps) {
-  const { theme, setTheme } = useTheme();
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" onCloseAutoFocus={onCloseAutoFocus}>
@@ -62,29 +47,6 @@ export function SettingsDialog({
             <span className="ml-auto rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
               {t.account.plans[mockUser.plan]}
             </span>
-          </div>
-        </section>
-
-        <Separator />
-
-        <section className="flex flex-col gap-3">
-          <h3 className="text-xs font-medium text-muted-foreground">
-            {t.settings.appearance}
-          </h3>
-          <div className="flex items-center justify-between gap-4">
-            <Label htmlFor="theme-select">{t.settings.theme}</Label>
-            <Select value={theme ?? "system"} onValueChange={setTheme}>
-              <SelectTrigger id="theme-select" className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {THEME_OPTIONS.map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {t.settings.themes[value]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </section>
       </DialogContent>
