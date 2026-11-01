@@ -68,8 +68,13 @@ export const ja = {
   },
   settings: {
     title: "設定",
-    description: "アカウント情報",
+    description: "アカウント情報と表示の設定",
     account: "アカウント",
+    textSize: "文字の大きさ",
+    textSizeDescription: "文字やボタンなど、画面全体の大きさを変えます。",
+    /** Shown in each option at that size. */
+    textSizeSample: "あ",
+    textSizes: { sm: "小", md: "中", lg: "大" },
   },
   workflow: {
     homeTitle: "ワークフロー",

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { TextSizeSync } from "@/features/text-size/components/text-size-sync";
+import { TEXT_SIZE_SCRIPT } from "@/features/text-size/text-size";
 import { t } from "@/locales";
 import "./globals.css";
 
@@ -22,11 +24,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // The <head> script sets the saved text size on <html> before React
+    // hydrates, so React must accept the difference.
     <html
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: TEXT_SIZE_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
+        <TextSizeSync />
         {/* A short pause before the first tooltip so sweeping the mouse
             across the sidebar doesn't flash every label; later ones open
             instantly (Radix skipDelayDuration). */}

@@ -10,7 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { mockUser } from "@/features/account/mock-user";
+import { TextSizePicker } from "@/features/text-size/components/text-size-picker";
 import { t } from "@/locales";
 import { UserAvatar } from "./user-avatar";
 
@@ -50,6 +52,10 @@ export function SettingsDialog({
             </Badge>
           </div>
         </section>
+
+        <Separator />
+
+        <TextSizePicker />
       </DialogContent>
     </Dialog>
   );
