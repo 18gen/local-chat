@@ -24,9 +24,8 @@ export const ja = {
   },
   chat: {
     emptyTitle: "何をお手伝いしましょうか？",
-    retentionNotice: (lifetime: string) =>
-      `メッセージは${lifetime}たつと自動的に削除され、この画面を離れるとすべて消去されます。`,
-    placeholderNotice: "モデルが接続されるまで、返信は仮のテキストです。",
+    aiDisclaimer:
+      "AIの回答には誤りが含まれる場合があります。必ずご自身で内容を確認してください。",
     mockReply: "これは仮の返信です。モデルはまだ接続されていません。",
     transcript: "メッセージ一覧",
     typing: "返信を作成しています",
