@@ -1,4 +1,3 @@
-import { ViewTransition, type ReactNode } from "react";
 import { ArrowDownIcon } from "lucide-react";
 
 import {
@@ -11,8 +10,8 @@ import {
 } from "@/components/ui/message-scroller";
 import { oldestExchangeEnd } from "@/features/chat/message-retention";
 import type { ChatMessage } from "@/features/chat/types";
-import { MESSAGE_EXPIRE_TRANSITION } from "@/features/chat/use-chat";
 import { t } from "@/locales";
+import { ExpireTransition } from "./expire-transition";
 import { ExpiryCheckpoint } from "./expiry-checkpoint";
 import { MessageRow } from "./message-row";
 import { TypingIndicator } from "./typing-indicator";
@@ -24,42 +23,29 @@ type MessageListProps = {
   oldestExpiresAt: number | null;
 };
 
-// Rows animate only during deletions: the expired exchange fades out while the
-// rows below slide up (styles in globals.css). Sending and page navigation
-// stay instant. View transitions animate snapshots, so the Message Scroller
-// still measures the real layout.
-const ON_EXPIRE = {
-  [MESSAGE_EXPIRE_TRANSITION]: "message-expire",
-  default: "none",
-};
-
-function Row({ children }: { children: ReactNode }) {
-  return (
-    <ViewTransition exit={ON_EXPIRE} update={ON_EXPIRE} default="none">
-      {children}
-    </ViewTransition>
-  );
-}
-
 // Follows shadcn's Message Scroller docs: your message is the scroll anchor,
 // so a new question settles near the top with the reply below it; autoScroll
 // follows a reply only while you're at the latest message; and reopening a
 // chat lands on its last question instead of the very bottom.
+//
+// During deletions the expired exchange fades out while the rows below slide
+// up. View transitions animate snapshots, so the Message Scroller still
+// measures the real layout.
 export function MessageList({ messages, pending, oldestExpiresAt }: MessageListProps) {
   const rows = messages.map((message) => (
-    <Row key={message.id}>
+    <ExpireTransition key={message.id}>
       <MessageScrollerItem messageId={message.id} scrollAnchor={message.role === "user"}>
         <MessageRow message={message} />
       </MessageScrollerItem>
-    </Row>
+    </ExpireTransition>
   ));
   if (pending) {
     rows.push(
-      <Row key="typing">
+      <ExpireTransition key="typing">
         <MessageScrollerItem>
           <TypingIndicator />
         </MessageScrollerItem>
-      </Row>,
+      </ExpireTransition>,
     );
   }
   // The checkpoint sits right below the oldest AI response, so everything
@@ -70,11 +56,11 @@ export function MessageList({ messages, pending, oldestExpiresAt }: MessageListP
     rows.splice(
       end,
       0,
-      <Row key="expiry-checkpoint">
+      <ExpireTransition key="expiry-checkpoint">
         <MessageScrollerItem>
           <ExpiryCheckpoint expiresAt={oldestExpiresAt} />
         </MessageScrollerItem>
-      </Row>,
+      </ExpireTransition>,
     );
   }
 
