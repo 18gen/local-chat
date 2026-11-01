@@ -59,6 +59,28 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Text roles. Outside components/ui, text is sized with these instead of
+   text-xs…text-9xl (lint enforces it), so each role is tuned here once. They
+   are in rem, so the text size setting scales them with the rest of the UI.
+   A new role also goes in cn's list in lib/utils.ts. */
+@theme {
+  /* Page titles. */
+  --text-title: 1.5rem;
+  --text-title--line-height: calc(2 / 1.5);
+  --text-title--font-weight: 600;
+  /* Section and card titles. */
+  --text-heading: 1.125rem;
+  --text-heading--line-height: calc(1.75 / 1.125);
+  --text-heading--font-weight: 600;
+  /* Messages, inputs and descriptions, with room between lines for
+     reading Japanese. */
+  --text-body: 1rem;
+  --text-body--line-height: 1.75;
+  /* Notes, hints and other secondary text. */
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.625;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
