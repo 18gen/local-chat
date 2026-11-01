@@ -1,16 +1,19 @@
+import { ageOn } from "@/features/patient/patient-format";
+import type { Patient } from "@/features/patient/types";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
+import { t } from "@/locales";
 
 // Fictional demo data only, used until the backend exists. Never put real
-// patient information here.
+// patient information here. The chosen (fictional) patient heads each draft.
 
 export const SAMPLE_INPUTS: Record<DraftWorkflowId, string> = {
-  "discharge-summary": `【架空の症例】70代男性。
+  "discharge-summary": `【架空の症例】
 発熱と咳嗽で救急外来を受診し、市中肺炎の診断で入院。
 入院時：体温38.5℃、SpO2 92%（室内気）、胸部X線で右下肺野に浸潤影。
 セフトリアキソン点滴を7日間投与し、3日目に解熱。酸素投与は4日目に終了。
 食事摂取は良好で、ADLは自立。
 退院後は近医でのフォローを予定。`,
-  "referral-letter": `【架空の症例】60代女性。
+  "referral-letter": `【架空の症例】
 紹介先：○○病院 循環器内科
 目的：労作時の胸部圧迫感の精査
 2週間前から階段昇降時に胸部圧迫感あり、安静で数分以内に改善。
@@ -25,8 +28,13 @@ export const SAMPLE_INPUTS: Record<DraftWorkflowId, string> = {
 10/5 全粥摂取良好。退院の方針について本人・家族へ説明。`,
 };
 
-export const MOCK_DRAFTS: Record<DraftWorkflowId, string> = {
-  "discharge-summary": `【患者】70代 男性（架空）
+function patientLine(patient: Patient): string {
+  const age = ageOn(patient.birthDate, new Date());
+  return `【患者】${patient.name}（${patient.kana}）　${age}歳　${t.patient.genders[patient.gender]}　ID ${patient.id}`;
+}
+
+export const MOCK_DRAFTS: Record<DraftWorkflowId, (patient: Patient) => string> = {
+  "discharge-summary": (patient) => `${patientLine(patient)}
 【診断名】市中肺炎
 【入院時の状態】
 発熱（38.5℃）、咳嗽あり。SpO2 92%（室内気）。胸部X線で右下肺野に浸潤影を認めた。
@@ -36,9 +44,9 @@ export const MOCK_DRAFTS: Record<DraftWorkflowId, string> = {
 食事摂取良好。ADL自立。
 【退院後の方針】
 近医にて経過観察を依頼する。`,
-  "referral-letter": `○○病院 循環器内科 御侍史
+  "referral-letter": (patient) => `○○病院 循環器内科 御侍史
 
-【患者】60代 女性（架空）
+${patientLine(patient)}
 【紹介目的】労作時胸部圧迫感の精査をお願いいたします。
 【現病歴】
 2週間前より階段昇降時に胸部圧迫感を自覚され、安静により数分以内に改善しております。
@@ -47,7 +55,8 @@ export const MOCK_DRAFTS: Record<DraftWorkflowId, string> = {
 【検査所見】心電図で明らかなST変化は認めませんでした。
 
 ご高診のほど、よろしくお願い申し上げます。`,
-  "note-summary": `・10/1：腹痛と嘔吐で入院。腸閉塞疑いで絶食・輸液を開始。
+  "note-summary": (patient) => `${patientLine(patient)}
+・10/1：腹痛と嘔吐で入院。腸閉塞疑いで絶食・輸液を開始。
 ・10/2〜10/3：症状は改善傾向。排ガスあり、流動食を開始。
 ・10/4〜10/5：食事を全粥まで段階的に上げ、摂取良好。排便あり、バイタル安定。
 ・今後：退院の方針について本人・家族へ説明済み。`,

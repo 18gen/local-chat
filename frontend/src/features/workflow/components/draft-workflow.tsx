@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   CheckIcon,
   CopyIcon,
@@ -28,6 +29,8 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { PatientPicker } from "@/features/patient/components/patient-picker";
+import type { Patient } from "@/features/patient/types";
 import { generateDraft } from "@/features/workflow/generate-draft";
 import { SAMPLE_INPUTS } from "@/features/workflow/mock-drafts";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
@@ -36,15 +39,17 @@ import { t } from "@/locales";
 type Status = "idle" | "generating" | "ready" | "failed";
 
 /**
- * The shared notes → draft screen. Input and draft live only in this
- * component's state, so leaving the screen discards them.
+ * The shared patient → notes → draft screen. The patient, input and draft
+ * live only in this component's state, so leaving the screen discards them.
  */
 export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   const text = t.workflow.items[workflowId];
+  const [patient, setPatient] = useState<Patient | null>(null);
   const [input, setInput] = useState("");
   const [draft, setDraft] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const controller = useRef<AbortController | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const draftSection = useRef<HTMLElement>(null);
   const { state: copyState, copy } = useCopyToClipboard();
   const inputId = useId();
@@ -64,12 +69,24 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
 
   const generating = status === "generating";
 
+  // The notes belong to the patient, so they go when the patient changes.
+  // The notes field opens once a patient is chosen, then takes focus.
+  const changePatient = (next: Patient | null) => {
+    flushSync(() => {
+      setPatient(next);
+      setInput("");
+      setStatus("idle");
+    });
+    if (next) inputRef.current?.focus();
+  };
+
   const generate = () => {
+    if (!patient) return;
     controller.current?.abort();
     const current = new AbortController();
     controller.current = current;
     setStatus("generating");
-    generateDraft(workflowId, input, current.signal)
+    generateDraft(workflowId, patient, input, current.signal)
       .then((result) => {
         setDraft(result);
         setStatus("ready");
@@ -88,17 +105,25 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
 
   return (
     <div className="flex flex-col gap-10">
+      <PatientPicker
+        value={patient}
+        onChange={changePatient}
+        locked={generating || draft !== null}
+        confirmChange={input.trim() !== ""}
+      />
+
       <section className="flex flex-col gap-4">
         <Field>
           <FieldLabel htmlFor={inputId} className="text-body">
             {text.inputLabel}
           </FieldLabel>
           <Textarea
+            ref={inputRef}
             id={inputId}
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder={text.inputPlaceholder}
-            disabled={generating || draft !== null}
+            disabled={!patient || generating || draft !== null}
             className="min-h-48 p-2 text-body"
           />
           <FieldDescription>{t.workflow.inputDescription}</FieldDescription>
@@ -109,7 +134,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             <Button
               size="xl"
               onClick={generate}
-              disabled={generating || input.trim().length === 0}
+              disabled={!patient || generating || input.trim().length === 0}
             >
               {generating ? <Spinner aria-hidden /> : <SparklesIcon />}
               {generating ? t.workflow.generating : t.workflow.generate}
@@ -118,7 +143,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
               variant="outline"
               size="xl"
               onClick={() => setInput(SAMPLE_INPUTS[workflowId])}
-              disabled={generating}
+              disabled={!patient || generating}
             >
               {t.workflow.fillSample}
             </Button>

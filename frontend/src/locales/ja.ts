@@ -87,6 +87,29 @@ export const ja = {
     textSizeSample: "あ",
     textSizes: { sm: "小", md: "中", lg: "大" },
   },
+  patient: {
+    label: "患者",
+    hint: "最初に、対象の患者を選択してください。",
+    searchPlaceholder: "患者ID・氏名・カナで検索",
+    searchHint: "患者ID・氏名・カナを入力すると検索します。",
+    searching: "検索しています…",
+    noResults: "該当する患者が見つかりません。",
+    failed: "検索できませんでした。もう一度お試しください。",
+    narrowDown: (limit: number) =>
+      `上位${limit}件を表示しています。条件を追加して絞り込んでください。`,
+    id: (id: string) => `ID ${id}`,
+    birth: (date: string, age: number) => `${date}生（${age}歳）`,
+    genders: { male: "男性", female: "女性", other: "その他", unknown: "不明" },
+    inpatient: (ward: string, room: string) => `入院中 ${ward} ${room}号室`,
+    outpatient: "外来",
+    namesake: "同姓同名",
+    namesakeWarning: "同姓同名の患者がいます。IDと生年月日を確認してください。",
+    change: "変更",
+    changeLabel: "患者を変更",
+    changeTitle: "患者を変更しますか？",
+    changeDescription: "この患者について入力した内容は消去されます。",
+    changeConfirm: "変更する",
+  },
   workflow: {
     homeTitle: "ワークフロー",
     homeDescription:
@@ -112,7 +135,7 @@ export const ja = {
     draftLabel: "下書きの内容（編集できます）",
     reset: "最初からやり直す",
     resetTitle: "最初からやり直しますか？",
-    resetDescription: "入力した内容と下書きはすべて消去されます。",
+    resetDescription: "入力した内容と下書きは消去されます。選んだ患者はそのままです。",
     resetConfirm: "やり直す",
     cancel: "キャンセル",
     items: {
