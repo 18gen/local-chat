@@ -33,7 +33,10 @@ export default async function WorkflowPage({
 
   return (
     <>
-      <PageHeader />
+      <PageHeader>
+        <span className="font-medium">{text.title}</span>
+      </PageHeader>
+
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-6 pt-2 pb-12">
           <Button variant="ghost" asChild className="-ml-2 text-muted-foreground">
