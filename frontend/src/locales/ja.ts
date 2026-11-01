@@ -122,7 +122,6 @@ export const ja = {
     backToList: "一覧へ戻る",
     inputDescription:
       "入力した内容は保存されず、この画面を離れると消去されます。",
-    fillSample: "サンプルを入力",
     generate: "下書きを作成",
     generating: "作成しています…",
     failed: "下書きを作成できませんでした。もう一度お試しください。",

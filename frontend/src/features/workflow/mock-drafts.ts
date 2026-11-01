@@ -6,28 +6,6 @@ import { t } from "@/locales";
 // Fictional demo data only, used until the backend exists. Never put real
 // patient information here. The chosen (fictional) patient heads each draft.
 
-export const SAMPLE_INPUTS: Record<DraftWorkflowId, string> = {
-  "discharge-summary": `【架空の症例】
-発熱と咳嗽で救急外来を受診し、市中肺炎の診断で入院。
-入院時：体温38.5℃、SpO2 92%（室内気）、胸部X線で右下肺野に浸潤影。
-セフトリアキソン点滴を7日間投与し、3日目に解熱。酸素投与は4日目に終了。
-食事摂取は良好で、ADLは自立。
-退院後は近医でのフォローを予定。`,
-  "referral-letter": `【架空の症例】
-紹介先：○○病院 循環器内科
-目的：労作時の胸部圧迫感の精査
-2週間前から階段昇降時に胸部圧迫感あり、安静で数分以内に改善。
-既往歴：高血圧、脂質異常症。
-内服：アムロジピン5mg、アトルバスタチン10mg。
-心電図：明らかなST変化なし。`,
-  "note-summary": `【架空の記録】
-10/1 腹痛と嘔吐で入院。腸閉塞疑いで絶食・輸液開始。
-10/2 腹部膨満やや改善。排ガスあり。
-10/3 腹痛軽快。流動食を開始し、嘔吐なし。
-10/4 五分粥へ。排便あり。バイタル安定。
-10/5 全粥摂取良好。退院の方針について本人・家族へ説明。`,
-};
-
 function patientLine(patient: Patient): string {
   const age = ageOn(patient.birthDate, new Date());
   return `【患者】${patient.name}（${patient.kana}）　${age}歳　${t.patient.genders[patient.gender]}　ID ${patient.id}`;

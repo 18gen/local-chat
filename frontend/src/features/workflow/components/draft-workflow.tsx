@@ -32,7 +32,6 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { PatientPicker } from "@/features/patient/components/patient-picker";
 import type { Patient } from "@/features/patient/types";
 import { generateDraft } from "@/features/workflow/generate-draft";
-import { SAMPLE_INPUTS } from "@/features/workflow/mock-drafts";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
 import { t } from "@/locales";
 
@@ -124,30 +123,24 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             onChange={(event) => setInput(event.target.value)}
             placeholder={text.inputPlaceholder}
             disabled={!patient || generating || draft !== null}
-            className="min-h-48 p-2 text-body"
+            // Four lines tall (4 × 1.75rem, plus padding and border); it grows
+            // with longer notes.
+            className="min-h-32.5 p-2 text-body"
           />
           <FieldDescription>{t.workflow.inputDescription}</FieldDescription>
         </Field>
         {/* Once a draft exists, start over to generate again so edits aren't overwritten. */}
+        {/* Notes are optional; the patient alone is enough to draft from. */}
         {draft === null && (
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              size="xl"
-              onClick={generate}
-              disabled={!patient || generating || input.trim().length === 0}
-            >
-              {generating ? <Spinner aria-hidden /> : <SparklesIcon />}
-              {generating ? t.workflow.generating : t.workflow.generate}
-            </Button>
-            <Button
-              variant="outline"
-              size="xl"
-              onClick={() => setInput(SAMPLE_INPUTS[workflowId])}
-              disabled={!patient || generating}
-            >
-              {t.workflow.fillSample}
-            </Button>
-          </div>
+          <Button
+            size="xl"
+            onClick={generate}
+            disabled={!patient || generating}
+            className="self-start"
+          >
+            {generating ? <Spinner aria-hidden /> : <SparklesIcon />}
+            {generating ? t.workflow.generating : t.workflow.generate}
+          </Button>
         )}
       </section>
 
