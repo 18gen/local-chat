@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useId, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
   CheckIcon,
+  CommandIcon,
   CopyIcon,
+  CornerDownLeftIcon,
   InfoIcon,
   RotateCcwIcon,
-  SparklesIcon,
   TriangleAlertIcon,
 } from "lucide-react";
 
@@ -26,9 +27,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { useIsMac } from "@/hooks/use-is-mac";
 import { PatientPicker } from "@/features/patient/components/patient-picker";
 import type { Patient } from "@/features/patient/types";
 import { generateDraft } from "@/features/workflow/generate-draft";
@@ -67,6 +70,8 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   }, [status]);
 
   const generating = status === "generating";
+  // Notes are optional; the patient alone is enough to draft from.
+  const canGenerate = patient !== null && !generating && draft === null;
 
   // The notes belong to the patient, so they go when the patient changes.
   // The notes field opens once a patient is chosen, then takes focus.
@@ -94,6 +99,26 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
         if (!current.signal.aborted) setStatus("failed");
       });
   };
+
+  // ⌘Enter (Ctrl+Enter on Windows) works like the button from anywhere on the
+  // screen, as the sidebar's ⌘B does; not inside a dialog or while an IME is
+  // composing.
+  const onShortcut = useEffectEvent((event: KeyboardEvent) => {
+    if (event.key !== "Enter" || !(event.metaKey || event.ctrlKey)) return;
+    if (event.isComposing || event.repeat || !canGenerate) return;
+    const target = event.target;
+    if (target instanceof Element && target.closest('[role="dialog"], [role="alertdialog"]')) {
+      return;
+    }
+    event.preventDefault();
+    generate();
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => onShortcut(event);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const reset = () => {
     controller.current?.abort();
@@ -130,16 +155,17 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
           <FieldDescription>{t.workflow.inputDescription}</FieldDescription>
         </Field>
         {/* Once a draft exists, start over to generate again so edits aren't overwritten. */}
-        {/* Notes are optional; the patient alone is enough to draft from. */}
         {draft === null && (
           <Button
             size="xl"
             onClick={generate}
-            disabled={!patient || generating}
+            disabled={!canGenerate}
+            aria-keyshortcuts="Meta+Enter Control+Enter"
             className="self-start"
           >
-            {generating ? <Spinner aria-hidden /> : <SparklesIcon />}
+            {generating && <Spinner data-icon="inline-start" aria-hidden />}
             {generating ? t.workflow.generating : t.workflow.generate}
+            {!generating && <GenerateShortcut />}
           </Button>
         )}
       </section>
@@ -203,5 +229,30 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
         </section>
       )}
     </div>
+  );
+}
+
+// One key cap for the whole shortcut, like the sidebar's ⌘B hint, a size up
+// so it reads at a glance on the large button. Mac symbols are icons: the ⌘
+// and ⏎ characters draw too thin at this size. Screen readers get the
+// button's aria-keyshortcuts instead.
+function GenerateShortcut() {
+  const mac = useIsMac();
+  if (mac === null) return null;
+  return (
+    <Kbd
+      data-icon="inline-end"
+      aria-hidden
+      className="h-6 min-w-6 translate-x-0.5 gap-0.5 bg-primary-foreground/20 px-1.5 text-caption text-primary-foreground [&_svg:not([class*='size-'])]:size-3.5"
+    >
+      {mac ? (
+        <>
+          <CommandIcon />
+          <CornerDownLeftIcon />
+        </>
+      ) : (
+        "Ctrl+Enter"
+      )}
+    </Kbd>
   );
 }
