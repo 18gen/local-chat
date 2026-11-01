@@ -62,8 +62,19 @@ export const ja = {
     failed: "コピーできませんでした",
   },
   account: {
-    plans: {
-      free: "無料プラン",
+    roles: {
+      doctor: "医師",
+      nurse: "看護師",
+      pharmacist: "薬剤師",
+      "radiological-technologist": "診療放射線技師",
+      "laboratory-technologist": "臨床検査技師",
+      "physical-therapist": "理学療法士",
+      "occupational-therapist": "作業療法士",
+      "speech-therapist": "言語聴覚士",
+      dietitian: "管理栄養士",
+      "social-worker": "医療ソーシャルワーカー",
+      "medical-clerk": "医師事務作業補助者",
+      "office-staff": "事務職員",
     },
   },
   settings: {

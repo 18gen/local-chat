@@ -1,8 +1,16 @@
-// Placeholder account until real auth exists. `plan` is a code; its label
-// lives in the locale (t.account.plans).
-export const mockUser = {
-  name: "山田 花子",
+import type { StaffRole } from "@/features/account/staff-roles";
+
+export type User = {
+  name: string;
+  email: string;
+  role: StaffRole;
+  initials: string;
+};
+
+// Placeholder account until real auth exists.
+export const mockUser: User = {
+  name: "山田 太郎",
   email: "yamada@example.com",
-  plan: "free",
+  role: "doctor",
   initials: "山",
-} as const;
+};

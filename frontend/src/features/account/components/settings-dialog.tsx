@@ -48,7 +48,7 @@ export function SettingsDialog({
               <p className="truncate text-muted-foreground">{mockUser.email}</p>
             </div>
             <Badge variant="outline" className="ml-auto text-muted-foreground">
-              {t.account.plans[mockUser.plan]}
+              {t.account.roles[mockUser.role]}
             </Badge>
           </div>
         </section>

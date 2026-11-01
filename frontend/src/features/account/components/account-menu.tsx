@@ -42,7 +42,7 @@ export function AccountMenu() {
                   {/* Sidebar color, not the page's gray, which is too faint on navy.
                       Tight lines, so both fit the button at any text size. */}
                   <span className="truncate text-caption leading-tight text-sidebar-foreground/70">
-                    {t.account.plans[mockUser.plan]}
+                    {t.account.roles[mockUser.role]}
                   </span>
                 </div>
               </SidebarMenuButton>
