@@ -61,7 +61,7 @@ export const ja = {
     comingSoonTitle: "このワークフローは準備中です",
     comingSoonDescription:
       "公開までしばらくお待ちください。ほかのワークフローは一覧から利用できます。",
-    backToList: "ワークフロー一覧へ戻る",
+    backToList: "一覧へ戻る",
     inputDescription:
       "架空の情報のみ入力してください。入力した内容は保存されず、この画面を離れると消去されます。",
     fillSample: "サンプルを入力",

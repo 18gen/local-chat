@@ -102,7 +102,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             onChange={(event) => setInput(event.target.value)}
             placeholder={text.inputPlaceholder}
             disabled={generating || draft !== null}
-            className="min-h-48 text-base leading-7"
+            className="min-h-48 text-base leading-7 p-2"
           />
           <FieldDescription>{t.workflow.inputDescription}</FieldDescription>
         </Field>

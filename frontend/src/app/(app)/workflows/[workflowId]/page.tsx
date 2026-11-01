@@ -54,8 +54,8 @@ async function WorkflowDetails({
   return (
     <>
       <div className="mt-4 flex items-start gap-4">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Icon className="size-6" aria-hidden />
+        <span className="flex size-15 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="size-8" aria-hidden />
         </span>
         <div>
           <h1 className="text-2xl font-semibold">{text.title}</h1>
