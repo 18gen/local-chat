@@ -1,18 +1,19 @@
 import type { Patient } from "@/features/patient/types";
-import { MOCK_DRAFTS } from "@/features/workflow/mock-drafts";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
-import { mockDelay } from "@/lib/mock-delay";
+import { postJson } from "@/lib/api";
 
-// Placeholder until the backend is connected: returns a fixed fictional draft
-// for the patient, regardless of the input. Replace the body with the API call; nothing here
+// Drafts from the patient and the notes, which may be empty. Nothing here
 // stores the input or the result.
-const MOCK_DELAY_MS = 1200;
-
-export function generateDraft(
+export async function generateDraft(
   workflowId: DraftWorkflowId,
   patient: Patient,
-  _input: string,
+  notes: string,
   signal: AbortSignal,
 ): Promise<string> {
-  return mockDelay(MOCK_DRAFTS[workflowId](patient), MOCK_DELAY_MS, signal);
+  const { draft } = await postJson<{ draft: string }>(
+    "/api/drafts",
+    { workflowId, patient, notes },
+    signal,
+  );
+  return draft;
 }

@@ -32,6 +32,8 @@ function createMessage(role: ChatMessage["role"], content: string): ChatMessage 
 export function useChat(ttlMs: number) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState(false);
+  // The last reply couldn't be created; cleared by the next message.
+  const [failed, setFailed] = useState(false);
   const replyController = useRef<AbortController | null>(null);
 
   // Cancel an in-flight reply if the chat goes away, e.g. on the 404 page,
@@ -85,6 +87,7 @@ export function useChat(ttlMs: number) {
       userMessage,
     ];
     setMessages((prev) => [...prev, userMessage]);
+    setFailed(false);
 
     const controller = new AbortController();
     replyController.current = controller;
@@ -96,6 +99,7 @@ export function useChat(ttlMs: number) {
       )
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
+        setFailed(true);
         // Log the error only; message content must never reach the console.
         console.error("Failed to generate a reply:", error);
       })
@@ -115,9 +119,10 @@ export function useChat(ttlMs: number) {
     startTransition(() => {
       addTransitionType(MESSAGE_EXPIRE_TRANSITION);
       setPending(false);
+      setFailed(false);
       setMessages([]);
     });
   };
 
-  return { messages, pending, sendMessage, clearMessages };
+  return { messages, pending, failed, sendMessage, clearMessages };
 }

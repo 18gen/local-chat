@@ -46,7 +46,7 @@ export const ja = {
     newChatTitle: "新しいチャットを始めますか？",
     newChatDescription: "現在の会話はすべて削除され、復元できません。",
     newChatConfirm: "削除して始める",
-    mockReply: "これは仮の返信です。モデルはまだ接続されていません。",
+    failed: "返信を作成できませんでした。もう一度お試しください。",
     transcript: "メッセージ一覧",
     typing: "返信を作成しています",
     scrollToLatest: "最新のメッセージへ移動",

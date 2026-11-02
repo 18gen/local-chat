@@ -14,7 +14,7 @@ import { NewChatButton } from "./new-chat-button";
 import { RetentionSelect } from "./retention-select";
 
 export function ChatView() {
-  const { messages, pending, sendMessage, clearMessages, ttlMs, setTtlMs } =
+  const { messages, pending, failed, sendMessage, clearMessages, ttlMs, setTtlMs } =
     useChatContext();
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const isEmpty = messages.length === 0;
@@ -65,6 +65,11 @@ export function ChatView() {
               isEmpty ? "gap-3" : "gap-2 pb-4",
             )}
           >
+            {failed && (
+              <p role="alert" className="text-caption text-destructive">
+                {t.chat.failed}
+              </p>
+            )}
             <Composer ref={composerRef} onSend={sendMessage} disabled={pending} />
             <p className="text-center text-caption text-muted-foreground">
               {t.chat.aiDisclaimer}
