@@ -14,7 +14,7 @@ cd backend
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
 cp .env.example .env   # then paste the API key into LLM_API_KEY
-.venv/bin/fastapi dev app/main.py   # http://127.0.0.1:8000
+.venv/bin/uvicorn app.main:app --reload   # http://127.0.0.1:8000
 .venv/bin/pytest                    # tests, without calling the model
 ```
 
