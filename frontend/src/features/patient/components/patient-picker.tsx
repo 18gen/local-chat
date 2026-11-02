@@ -23,16 +23,15 @@ import { PatientSearch } from "./patient-search";
 type PatientPickerProps = {
   value: Patient | null;
   onChange: (patient: Patient | null) => void;
-  /** No changing, e.g. once a draft exists for this patient. */
+  /** No changing, e.g. once a draft exists. */
   locked?: boolean;
-  /** Ask before changing, because it discards what was entered for this patient. */
+  /** Ask first: a change discards what was entered for this patient. */
   confirmChange?: boolean;
 };
 
 /**
- * The first step of a workflow: search for the patient, then show them until
- * the workflow ends. Controlled, so each workflow decides what a change
- * resets.
+ * Search for the patient, then show them. Controlled, so each workflow
+ * decides what a change resets.
  */
 export function PatientPicker({
   value,

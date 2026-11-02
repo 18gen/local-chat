@@ -10,12 +10,11 @@ import {
 import { sortByFavorite, WORKFLOWS } from "@/features/workflow/workflows";
 import { WorkflowCard } from "./workflow-card";
 
-// Same order as the sidebar: starred first, sliding into place on change.
 export function WorkflowGrid() {
   const { favorites, toggleFavorite } = useFavoriteWorkflows();
   const { containerRef, capture } = useFlip<HTMLUListElement>();
 
-  // A star changed anywhere (here or in the sidebar): record positions first.
+  // A star changed anywhere: record positions first.
   useEffect(() => onBeforeFavoritesChange(capture), [capture]);
 
   return (

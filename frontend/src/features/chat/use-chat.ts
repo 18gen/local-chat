@@ -15,7 +15,7 @@ import {
 } from "@/features/chat/message-retention";
 import type { ChatMessage } from "@/features/chat/types";
 
-/** Transition type for deletions (expiry or a new chat); message rows animate only for this. */
+/** Transition type for deletions; only message rows animate for it. */
 export const MESSAGE_EXPIRE_TRANSITION = "message-expire";
 
 function createMessage(role: ChatMessage["role"], content: string): ChatMessage {
@@ -23,30 +23,24 @@ function createMessage(role: ChatMessage["role"], content: string): ChatMessage 
 }
 
 /**
- * The AI chat's messages, kept in memory only: nothing is written to storage,
- * cookies or the console, so reloading or closing the tab ends the
- * conversation. Used by ChatProvider in the app layout, so it keeps running
- * while other pages are open. Messages older than `ttlMs` are deleted, and
- * changing it applies to the messages shown.
+ * The AI chat, in memory only: never written to storage, cookies or the
+ * console. Messages older than `ttlMs` are deleted.
  */
 export function useChat(ttlMs: number) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState(false);
-  // The last reply couldn't be created; cleared by the next message.
   const [failed, setFailed] = useState(false);
   const replyController = useRef<AbortController | null>(null);
 
-  // Cancel an in-flight reply if the chat goes away, e.g. on the 404 page,
-  // which is outside the app layout.
+  // Cancel a reply in progress if the chat unmounts (e.g. the 404 page).
   useEffect(() => {
     return () => replyController.current?.abort();
   }, []);
 
-  /** Deletes expired messages. Returns false if none had expired yet. */
+  /** Returns false if none had expired yet. */
   const pruneExpired = useEffectEvent((): boolean => {
     const now = Date.now();
     if (countExpired(messages, now, ttlMs) === 0) return false;
-    // A typed transition, so only the message rows animate (see MessageList).
     startTransition(() => {
       addTransitionType(MESSAGE_EXPIRE_TRANSITION);
       setMessages((prev) => removeExpired(prev, now, ttlMs));
@@ -54,9 +48,8 @@ export function useChat(ttlMs: number) {
     return true;
   });
 
-  // Expiry compares the clock with each message's createdAt instead of
-  // counting down, so it stays correct when background tabs throttle timers
-  // or the computer sleeps. Returning to the tab checks again.
+  // Compares the clock with createdAt instead of counting down, so throttled
+  // background tabs and sleep don't delay deletion.
   useEffect(() => {
     const expiresAt = nextExpiry(messages, ttlMs);
     if (expiresAt === null) return;
@@ -94,8 +87,8 @@ export function useChat(ttlMs: number) {
     setPending(true);
 
     void (async () => {
-      // The reply appears with its first text and grows from there. Its time
-      // is when it started, for auto-delete.
+      // The reply appears with its first text; its time (for auto-delete) is
+      // when it started.
       let replyId: string | null = null;
       try {
         for await (const text of streamReply(history, controller.signal)) {
@@ -126,16 +119,15 @@ export function useChat(ttlMs: number) {
     })();
   };
 
-  /** Stops the reply in progress, keeping what has arrived. */
+  /** Keeps what has arrived. */
   const stopReply = () => {
     replyController.current?.abort();
   };
 
-  /** Deletes the whole conversation, cancelling a reply in progress. */
+  /** Also cancels a reply in progress. */
   const clearMessages = () => {
     replyController.current?.abort();
     replyController.current = null;
-    // Animates like the last messages expiring.
     startTransition(() => {
       addTransitionType(MESSAGE_EXPIRE_TRANSITION);
       setPending(false);

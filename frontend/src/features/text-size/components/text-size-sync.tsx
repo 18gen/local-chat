@@ -6,10 +6,8 @@ import { applyTextSize } from "@/features/text-size/text-size";
 import { textSize } from "@/features/text-size/use-text-size";
 
 /**
- * Keeps the page at the chosen text size once React takes over from the
- * <head> script: applies a new choice from this tab or another one, and
- * re-applies after React's development-only remount clears the script's
- * style from <html> (a no-op in production). Mounted once, in the root layout.
+ * Applies changes from any tab, and re-applies after React's dev-only
+ * remount clears the <head> script's style. Mounted once, in the root layout.
  */
 export function TextSizeSync() {
   useLayoutEffect(() => {

@@ -32,15 +32,13 @@ export function AccountMenu() {
               <SidebarMenuButton
                 ref={triggerRef}
                 size="lg"
-                // Shown only when the sidebar is collapsed to the avatar.
                 tooltip={mockUser.name}
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <UserAvatar size="lg" />
                 <div className="grid flex-1 gap-0.5 text-left leading-tight">
                   <span className="truncate font-medium">{mockUser.name}</span>
-                  {/* Sidebar color, not the page's gray, which is too faint on navy.
-                      Tight lines, so both fit the button at any text size. */}
+                  {/* The page's gray is too faint on navy; tight lines fit any text size. */}
                   <span className="truncate text-caption leading-tight text-sidebar-foreground/70">
                     {t.account.roles[mockUser.role]}
                   </span>

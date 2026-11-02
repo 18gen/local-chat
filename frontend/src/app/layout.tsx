@@ -12,15 +12,13 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  // Pages set their own title, e.g. "ワークフロー | LocalChat".
   title: { default: t.app.name, template: `%s | ${t.app.name}` },
   description: t.app.description,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // The <head> script sets the saved text size on <html> before React
-    // hydrates, so React must accept the difference.
+    // The <head> script sets the text size on <html> before hydration.
     <html
       lang="ja"
       className={`${geistSans.variable} h-full antialiased`}
@@ -31,9 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         <TextSizeSync />
-        {/* A short pause before the first tooltip so sweeping the mouse
-            across the sidebar doesn't flash every label; later ones open
-            instantly (Radix skipDelayDuration). */}
+        {/* A pause before the first tooltip, so sweeping the sidebar doesn't flash every label. */}
         <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
       </body>
     </html>

@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/empty";
 import { t } from "@/locales";
 
-// Replaces Next.js's English default for unknown URLs and unknown workflows.
 export default function NotFound() {
   return (
     <Empty className="min-h-svh">

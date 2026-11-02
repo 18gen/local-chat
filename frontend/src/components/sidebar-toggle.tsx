@@ -21,9 +21,8 @@ type SidebarToggleProps = Pick<
   className?: string;
 };
 
-// Rendered only inside the open tooltip, i.e. in the browser, so checking the
-// OS here can't cause a server/client mismatch. Most hospital PCs are Windows.
-// ⌘ is an icon, as on the draft button: the character draws too thin.
+// Rendered only in the open tooltip, i.e. in the browser, so checking the OS
+// can't mismatch hydration. ⌘ is an icon: the character draws too thin.
 function ToggleShortcut() {
   return (
     <Kbd className="gap-0.5">
@@ -38,12 +37,8 @@ function ToggleShortcut() {
   );
 }
 
-// Opens and closes the sidebar, from its header or, in narrow windows where
-// the sidebar becomes a drawer, from the page header. Same 44px size and 20px
-// icon as the sidebar's menu buttons.
 export function SidebarToggle({ className, side, sideOffset }: SidebarToggleProps) {
   const { isMobile, open, openMobile } = useSidebar();
-  // The drawer has its own open state, separate from the full sidebar's.
   const isOpen = isMobile ? openMobile : open;
 
   return (
@@ -51,7 +46,6 @@ export function SidebarToggle({ className, side, sideOffset }: SidebarToggleProp
       <TooltipTrigger asChild>
         <SidebarTrigger className={cn("size-11 [&_svg]:size-5!", className)} />
       </TooltipTrigger>
-      {/* Says what will happen, in both states. */}
       <TooltipContent side={side} sideOffset={sideOffset}>
         {isOpen ? t.sidebar.close : t.sidebar.open}
         <ToggleShortcut />

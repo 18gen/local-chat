@@ -30,7 +30,6 @@ export function AppSidebar() {
           <span className="px-3 text-body font-semibold group-data-[collapsible=icon]:hidden">
             {t.app.name}
           </span>
-          {/* Sidebar hover colors instead of the page's ghost button gray. */}
           <SidebarToggle
             side="right"
             sideOffset={12}

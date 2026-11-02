@@ -23,17 +23,15 @@ import { t } from "@/locales";
 import { PatientSummary } from "./patient-summary";
 
 type PatientSearchProps = {
-  /** For the field's label. */
   id: string;
   onSelect: (patient: Patient) => void;
   autoFocus?: boolean;
 };
 
-// shadcn's Combobox with Base UI's async search: the server filters, so the
-// combobox's own filtering is off.
+// The server filters, so the combobox's own filtering is off.
 export function PatientSearch({ id, onSelect, autoFocus }: PatientSearchProps) {
   const { patients, hasMore, status, search } = usePatientSearch();
-  // The list lines up with the whole box, not just the text after the icon.
+  // Line the list up with the whole box, not the text after the icon.
   const anchor = useComboboxAnchor();
 
   return (

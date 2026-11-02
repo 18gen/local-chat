@@ -1,6 +1,5 @@
-// Every piece of text users see or hear: visible copy, aria-labels,
-// screen-reader-only text, tooltips and placeholders. Developer-facing text
-// (thrown errors, console output, comments) stays in English.
+// All text users see or hear, including aria-labels and placeholders.
+// Developer-facing text (errors, logs, comments) stays in English.
 export const ja = {
   app: {
     name: "LocalChat",

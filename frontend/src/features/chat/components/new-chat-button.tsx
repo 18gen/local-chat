@@ -18,15 +18,11 @@ import { Button } from "@/components/ui/button";
 import { t } from "@/locales";
 
 type NewChatButtonProps = {
-  /** Nothing to delete yet. */
   disabled: boolean;
   onConfirm: () => void;
-  /** Where to type next, focused after the chat is cleared. */
   composerRef: RefObject<HTMLTextAreaElement | null>;
 };
 
-// There is only one chat, so a new chat means deleting the current one,
-// which can't be undone; the dialog says so.
 export function NewChatButton({ disabled, onConfirm, composerRef }: NewChatButtonProps) {
   const confirmed = useRef(false);
 
@@ -40,8 +36,7 @@ export function NewChatButton({ disabled, onConfirm, composerRef }: NewChatButto
       </AlertDialogTrigger>
       <AlertDialogContent
         onCloseAutoFocus={(event) => {
-          // After clearing, this button is disabled, so focus the composer
-          // instead. Cancelling returns focus to the button as usual.
+          // The button is disabled after clearing, so the composer takes focus.
           if (!confirmed.current) return;
           confirmed.current = false;
           event.preventDefault();

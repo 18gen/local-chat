@@ -1,10 +1,8 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * A UI preference kept in localStorage (never chat or patient data), shared
- * by every component and kept in sync across tabs. If storage is blocked, a
- * change still holds for this page. `parse` returns null for a missing or
- * invalid value, which falls back to `fallback`.
+ * A UI preference in localStorage (never chat or patient data), synced
+ * across components and tabs. If storage is blocked, it holds for the page.
  */
 export function createStoredValue<T>(
   key: string,
@@ -40,7 +38,6 @@ export function createStoredValue<T>(
     listeners.forEach((listener) => listener());
   };
 
-  /** Calls `listener` when the value changes here or in another tab. */
   const subscribe = (listener: () => void) => {
     listeners.add(listener);
     window.addEventListener("storage", listener);

@@ -26,9 +26,8 @@ export function WorkflowCard({ workflow, starred, onToggleFavorite }: WorkflowCa
   const Icon = workflow.icon;
 
   return (
-    // The title link stretches over the whole card (a large click target),
-    // and the star sits above it as its own button; a button can't be nested
-    // inside a link.
+    // The title link covers the card; the star is a separate button above it,
+    // since a button can't sit inside a link.
     <Card className="relative h-full transition-colors hover:bg-muted/40 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/50">
       <CardHeader className="gap-2">
         <span className="mb-1 flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">

@@ -7,9 +7,8 @@ const ON_EXPIRE = {
   default: "none",
 };
 
-// Animates its child only while expired messages are deleted (styles in
-// globals.css): it fades out when removed, fades in when added, and slides
-// when it moves. Sending and page navigation stay instant.
+// Animates only for deletions (styles in globals.css); sending and
+// navigation stay instant.
 export function ExpireTransition({ children }: { children: ReactNode }) {
   return (
     <ViewTransition enter={ON_EXPIRE} exit={ON_EXPIRE} update={ON_EXPIRE} default="none">

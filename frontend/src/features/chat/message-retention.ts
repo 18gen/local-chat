@@ -1,10 +1,7 @@
-// How long chat messages are kept, as pure functions of the current time so
-// they can be tested without timers.
 import type { ChatMessage } from "@/features/chat/types";
 
 const HOUR_MS = 60 * 60 * 1000;
 
-/** Selectable retention times: 1, 2 or 3 hours. */
 export const DEFAULT_TTL_MS = HOUR_MS;
 export const TTL_OPTIONS_MS = [
   // Development only: 5 seconds, to watch deletion without waiting.
@@ -16,9 +13,8 @@ export function isTtlOption(value: unknown): value is number {
   return typeof value === "number" && TTL_OPTIONS_MS.includes(value);
 }
 
-// Messages leave an exchange at a time: each AI response together with
-// everything sent since the previous response. The response holds the timer,
-// so a question still waiting for its answer isn't scheduled yet.
+// Messages go an exchange at a time: an AI response with everything sent
+// since the previous one. A question awaiting its answer has no timer yet.
 function exchangeTimes(messages: ChatMessage[]): (number | null)[] {
   const times: (number | null)[] = messages.map(() => null);
   let start = 0;
@@ -59,10 +55,7 @@ export function nextExpiry(
   return oldestResponse ? oldestResponse.createdAt + ttlMs : null;
 }
 
-/**
- * Index just past the oldest exchange (its AI response): everything before
- * it is deleted next. Null until a response exists.
- */
+/** Index just past the oldest exchange, or null until a response exists. */
 export function oldestExchangeEnd(messages: ChatMessage[]): number | null {
   const index = messages.findIndex((message) => message.role === "assistant");
   return index === -1 ? null : index + 1;

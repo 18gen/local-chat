@@ -22,8 +22,6 @@ import { t } from "@/locales";
 
 const SIZES = Object.keys(TEXT_SIZES) as TextSize[];
 
-// shadcn's choice cards (see the Field docs), one per size. Each shows a
-// sample character scaled like that size, and a choice applies at once.
 export function TextSizePicker() {
   const current = textSize.use();
   const id = useId();

@@ -13,7 +13,6 @@ import { CopyButton } from "./copy-button";
 export const MessageRow = memo(function MessageRow({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
 
-  // shadcn's Message and Bubble default to text-sm; messages are body text.
   return (
     <Message align={isUser ? "end" : "start"} className="text-body">
       <MessageContent className="gap-1">
@@ -26,9 +25,8 @@ export const MessageRow = memo(function MessageRow({ message }: { message: ChatM
         ) : (
           <div className="whitespace-pre-wrap">{message.content}</div>
         )}
-        {/* Follows the message alignment: right for you, left for replies.
-            Your actions stay hidden until hover or keyboard focus on
-            mouse/trackpad devices; touch screens always show them. */}
+        {/* Your actions show on hover or focus with a mouse; touch screens always
+            show them. */}
         <MessageFooter
           className={
             isUser

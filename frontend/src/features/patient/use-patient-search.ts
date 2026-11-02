@@ -7,24 +7,18 @@ import {
 
 export type PatientSearchStatus = "idle" | "searching" | "done" | "error";
 
-// Waits for a pause in typing, so each keystroke doesn't start a search.
 const DEBOUNCE_MS = 250;
 
 const NO_RESULT: PatientSearchResult = { patients: [], hasMore: false };
 
-/**
- * Searches as the query changes, following Base UI's async combobox pattern:
- * a newer query cancels the search in flight. The query and results live in
- * this component's state only.
- */
+/** Searches as the query changes; a newer query cancels the one in flight. */
 export function usePatientSearch() {
   const [result, setResult] = useState(NO_RESULT);
   const [status, setStatus] = useState<PatientSearchStatus>("idle");
   const controller = useRef<AbortController | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Cancel a pending search when the search box goes away. A search still
-  // waiting on the debounce starts with an aborted signal and stops at once.
+  // A search still waiting on the debounce starts aborted and stops at once.
   useEffect(() => {
     return () => controller.current?.abort();
   }, []);

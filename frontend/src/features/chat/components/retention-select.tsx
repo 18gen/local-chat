@@ -39,11 +39,9 @@ import { t } from "@/locales";
 type RetentionSelectProps = {
   ttlMs: number;
   onTtlChange: (ttlMs: number) => void;
-  /** The messages on screen, to count what a shorter time would delete. */
   messages: ChatMessage[];
 };
 
-// "[1時間後 ▾]に自動消去 ⓘ": only the time is a Select; ⓘ explains the rule.
 export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelectProps) {
   // A shorter time that would delete messages waits for confirmation.
   const [pending, setPending] = useState<{ ttlMs: number; count: number } | null>(
@@ -78,8 +76,6 @@ export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelec
           </SelectContent>
         </Select>
         <span className="whitespace-nowrap">{t.chat.autoDeleteSuffix}</span>
-        {/* The explanation lives on its own button, so it never gets in the
-            way of choosing a time; a button also opens it on keyboard focus. */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

@@ -10,10 +10,6 @@ type ChatContextValue = ReturnType<typeof useChat> &
 
 const ChatContext = createContext<ChatContextValue | null>(null);
 
-// Holds the AI chat in the app layout, which stays mounted across pages
-// (unlike the chat page, which Next.js hides while another page is open).
-// So a reply in progress finishes and expired messages are still deleted on
-// time while a workflow is open.
 export function ChatProvider({ children }: { children: ReactNode }) {
   const { ttlMs, setTtlMs } = useMessageTtl();
   const chat = useChat(ttlMs);

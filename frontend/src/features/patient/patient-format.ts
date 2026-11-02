@@ -10,11 +10,7 @@ function ageOn(birthDate: string, today: Date): number {
   return today.getFullYear() - year - (hadBirthday ? 0 : 1);
 }
 
-/**
- * What tells this patient apart from others with the same or a similar name.
- * ID and birth date come first: with the name, they are the two identifiers
- * patient safety guidelines ask staff to check.
- */
+/** ID and birth date first: with the name, the two identifiers staff check. */
 export function patientDetails(patient: Patient, today: Date): string[] {
   return [
     t.patient.id(patient.id),

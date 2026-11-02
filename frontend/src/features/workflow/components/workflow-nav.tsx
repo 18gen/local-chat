@@ -34,19 +34,15 @@ import { t } from "@/locales";
 import { FavoriteStarIcon } from "./favorite-star-icon";
 
 type WorkflowNavProps = {
-  /** Called after following a link, e.g. to close the mobile sidebar. */
   onNavigate?: () => void;
 };
 
-// Each workflow links straight to its page. Starred ones are listed first,
-// since the list will keep growing, and slide into place so they stay easy
-// to follow.
 export function WorkflowNav({ onNavigate }: WorkflowNavProps) {
   const pathname = usePathname();
   const { favorites, toggleFavorite } = useFavoriteWorkflows();
   const { containerRef, capture } = useFlip<HTMLUListElement>();
 
-  // A star changed anywhere (here or on a card): record positions first.
+  // A star changed anywhere: record positions first.
   useEffect(() => onBeforeFavoritesChange(capture), [capture]);
 
   return (
@@ -61,7 +57,6 @@ export function WorkflowNav({ onNavigate }: WorkflowNavProps) {
             </Link>
           </SidebarGroupAction>
         </TooltipTrigger>
-        {/* Clear of the sidebar's edge, like the other sidebar tooltips. */}
         <TooltipContent side="right" sideOffset={24}>
           {t.nav.workflowList}
         </TooltipContent>
@@ -85,7 +80,6 @@ export function WorkflowNav({ onNavigate }: WorkflowNavProps) {
                     <span>{title}</span>
                   </Link>
                 </SidebarMenuButton>
-                {/* Starred stars stay visible; others appear on hover. */}
                 <SidebarMenuAction
                   showOnHover={!starred}
                   aria-pressed={starred}

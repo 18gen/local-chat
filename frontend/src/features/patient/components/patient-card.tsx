@@ -8,11 +8,9 @@ import { PatientSummary } from "./patient-summary";
 
 type PatientCardProps = {
   patient: Patient;
-  /** E.g. a button to change the patient. */
   action?: ReactNode;
 };
 
-/** The chosen patient, shown for as long as the workflow runs. */
 export function PatientCard({ patient, action }: PatientCardProps) {
   return (
     <Item variant="outline">

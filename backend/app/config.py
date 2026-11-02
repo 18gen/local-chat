@@ -6,8 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Read from the environment or backend/.env (see .env.example)."""
 
-    # The OpenAI API by default; any OpenAI-compatible server through
-    # llm_base_url, e.g. a local one later.
+    # The OpenAI API by default, or any OpenAI-compatible server.
     llm_api_key: str = ""
     llm_model: str = "gpt-6-luna"
     llm_base_url: str | None = None

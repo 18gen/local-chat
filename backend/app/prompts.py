@@ -63,6 +63,5 @@ def age_on(birth_date: date, today: date) -> int:
 def patient_line(
     *, name: str, kana: str, birth_date: date, gender: str, patient_id: str, today: date
 ) -> str:
-    """The line that heads every draft, the same as the frontend shows."""
     age = age_on(birth_date, today)
     return f"【患者】{name}（{kana}）　{age}歳　{GENDER_LABELS[gender]}　ID {patient_id}"

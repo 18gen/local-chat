@@ -8,7 +8,7 @@ import {
 
 // The built-in workflows. Their text lives in t.workflow.items[id].
 
-/** Workflows that turn notes into an editable draft on the shared screen. */
+/** Workflows that turn notes into a draft on the shared screen. */
 export type DraftWorkflowId =
   | "discharge-summary"
   | "referral-letter"
@@ -24,7 +24,7 @@ export const WORKFLOWS: readonly Workflow[] = [
   { id: "discharge-summary", kind: "draft", icon: FileHeartIcon },
   { id: "referral-letter", kind: "draft", icon: SendIcon },
   { id: "note-summary", kind: "draft", icon: NotebookTextIcon },
-  // Search returns documents with sources, not a draft, so it needs its own screen.
+  // Search shows documents with sources, not a draft: its own screen.
   { id: "manual-search", kind: "coming-soon", icon: BookOpenIcon },
 ];
 
@@ -32,7 +32,6 @@ export function getWorkflow(id: string): Workflow | undefined {
   return WORKFLOWS.find((workflow) => workflow.id === id);
 }
 
-/** A workflow's page. Short like ChatGPT's /g/; the list stays at /workflows. */
 export function workflowHref(id: WorkflowId) {
   return `/w/${id}`;
 }
@@ -41,10 +40,7 @@ export function isWorkflowId(value: unknown): value is WorkflowId {
   return WORKFLOWS.some((workflow) => workflow.id === value);
 }
 
-/**
- * Favorites first, most recently starred on top (`favorites` is kept in the
- * order stars were added); the rest keep their original order.
- */
+/** Favorites first, most recently starred on top; the rest keep their order. */
 export function sortByFavorite(
   workflows: readonly Workflow[],
   favorites: readonly WorkflowId[],

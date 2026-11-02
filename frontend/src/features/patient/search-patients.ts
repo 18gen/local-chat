@@ -10,10 +10,8 @@ export type PatientSearchResult = {
   hasMore: boolean;
 };
 
-// Placeholder until the hospital API is connected: searches the fictional
-// patients in memory. Replace the body with the API call, sending the query
-// in a POST body so names stay out of URLs and server logs. Nothing here
-// stores or logs the query.
+// Placeholder for the hospital API. The real call should POST the query,
+// keeping names out of URLs and logs. Nothing here stores or logs it.
 const MOCK_DELAY_MS = 300;
 
 export function searchPatients(
@@ -34,8 +32,7 @@ export function searchPatients(
   );
 }
 
-// Folds the ways the same text gets typed: full- or half-width, hiragana or
-// katakana, with or without spaces.
+// Folds width, hiragana/katakana and spaces.
 function normalize(text: string): string {
   return text
     .normalize("NFKC")
@@ -45,8 +42,7 @@ function normalize(text: string): string {
     );
 }
 
-// The ID matches from its start, with or without its leading zeros; names and
-// readings match anywhere.
+// IDs match from the start, with or without leading zeros; names anywhere.
 function matchesPatient(patient: Patient, key: string): boolean {
   return (
     patient.id.startsWith(key) ||

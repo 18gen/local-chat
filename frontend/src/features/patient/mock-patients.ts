@@ -1,8 +1,7 @@
 import type { Patient } from "@/features/patient/types";
 
-// Fictional demo data only, used until the hospital API is connected. Never
-// put real patient information here. Includes two pairs of namesakes and two
-// different names with the same reading, to try the safety cues.
+// Fictional data only; never real patients. Includes namesakes and two
+// names with the same reading, to try the safety cues.
 
 type MockPatient = Omit<Patient, "hasNamesake">;
 

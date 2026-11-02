@@ -15,7 +15,6 @@ import {
 import { t } from "@/locales";
 
 type ChatNavProps = {
-  /** Called after following a link, e.g. to close the mobile sidebar. */
   onNavigate?: () => void;
 };
 

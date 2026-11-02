@@ -1,13 +1,10 @@
 type StreamChunk = { type: string; delta?: string };
 
 /**
- * POSTs JSON to a backend endpoint that streams its reply as an AI SDK UI
- * message stream (server-sent events), yielding the text so far as it grows.
- * POST keeps chat and patient content out of URLs and server logs.
- *
- * Throws if the request fails, the server sends an error, or the stream ends
- * without "finish", so a cut-off reply is never taken for a whole one. Errors
- * name only the path: a response can echo the request's patient data.
+ * POSTs JSON and yields the reply's text so far from an AI SDK UI message
+ * stream. POST keeps patient data out of URLs and logs. Throws on an error
+ * event or a stream without "finish", so a cut-off reply never passes for a
+ * whole one; errors name only the path, as a response can echo the request.
  */
 export async function* streamText(
   path: `/api/${string}`,

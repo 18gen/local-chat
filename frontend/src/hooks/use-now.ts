@@ -1,8 +1,7 @@
 import * as React from "react"
 
-// One shared clock that ticks on each second boundary while anything is
-// subscribed. Only the small components that show a countdown use it, so
-// the rest of the page doesn't re-render every second.
+// One shared clock, ticking each second while anything is subscribed, so
+// only the countdowns re-render.
 const listeners = new Set<() => void>()
 let timer: ReturnType<typeof setTimeout> | undefined
 
@@ -34,7 +33,6 @@ function getServerSnapshot() {
   return 0
 }
 
-/** The current time in epoch milliseconds, updated every second. */
 export function useNow() {
   return React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 }

@@ -2,10 +2,7 @@ import * as React from "react"
 
 type CopyState = "idle" | "copied" | "failed"
 
-/**
- * Copies text to the clipboard and reports the result, returning to "idle"
- * after `resetMs`. The text itself is never logged.
- */
+/** Copies text and reports the result for `resetMs`. The text is never logged. */
 export function useCopyToClipboard(resetMs = 2000) {
   const [state, setState] = React.useState<CopyState>("idle")
   const resetTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)

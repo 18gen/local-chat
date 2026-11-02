@@ -17,8 +17,8 @@ import { GenerateButton } from "./generate-button";
 import { StopButton } from "./stop-button";
 
 /**
- * The shared patient → notes → draft screen. Everything entered lives only
- * in this component's state, so leaving the screen discards it.
+ * The patient → notes → draft screen. Everything entered stays in this
+ * component's state, so leaving the screen discards it.
  */
 export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   const text = t.workflow.items[workflowId];
@@ -61,12 +61,11 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             onChange={(event) => setNotes(event.target.value)}
             placeholder={text.inputPlaceholder}
             disabled={!patient || generating || draft !== null}
-            // Four lines tall; it grows with longer notes.
+            // Four lines tall.
             className="min-h-32.5 p-2 text-body"
           />
           <FieldDescription>{t.workflow.inputDescription}</FieldDescription>
         </Field>
-        {/* Once there's a draft, starting over is the way to draft again. */}
         {draft === null && (
           <div className="flex flex-wrap items-center gap-3">
             <GenerateButton

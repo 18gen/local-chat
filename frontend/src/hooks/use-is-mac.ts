@@ -8,9 +8,8 @@ function subscribe() {
 }
 
 /**
- * Whether this is a Mac, for shortcut hints (⌘ or Ctrl). null while
- * rendering on the server, which can't know: render no hint then, so the
- * page hydrates without a mismatch and the hint appears right after.
+ * Whether this is a Mac, or null on the server, which can't know: render no
+ * hint then, so hydration matches and the hint appears right after.
  */
 export function useIsMac(): boolean | null {
   return React.useSyncExternalStore(subscribe, isMac, () => null)

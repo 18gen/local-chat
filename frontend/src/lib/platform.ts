@@ -1,7 +1,4 @@
-/**
- * True on macOS, for showing ⌘ instead of Ctrl in shortcut hints. Browser
- * only: call it from UI that renders on the client (e.g. tooltip content).
- */
+/** True on macOS. Browser only: call it from UI rendered on the client. */
 export function isMac(): boolean {
   if (typeof navigator === "undefined") return false
   const userAgentData = (

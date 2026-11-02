@@ -48,8 +48,8 @@ export function GenerateButton({ generating, disabled, onGenerate }: GenerateBut
   );
 }
 
-// Icons, because the ⌘ and ⏎ characters draw too thin at this size. Screen
-// readers get the button's aria-keyshortcuts instead.
+// Icons: the ⌘ and ⏎ characters draw too thin. Screen readers get
+// aria-keyshortcuts instead.
 function ShortcutHint() {
   const mac = useIsMac();
   if (mac === null) return null;

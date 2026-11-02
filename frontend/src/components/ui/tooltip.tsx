@@ -47,8 +47,7 @@ function TooltipContent({
         {...props}
       >
         {children}
-        {/* The outline continues along the arrow's two outer edges, which
-            start right at the tooltip's edge so none of it shows inside. */}
+        {/* The outline continues along the arrow's outer edges. */}
         <TooltipPrimitive.Arrow className="z-50 size-2.5 -translate-y-1/2 rotate-45 rounded-[2px] border-r border-b border-tooltip-border bg-tooltip bg-clip-padding fill-tooltip" />
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>

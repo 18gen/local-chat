@@ -1,6 +1,6 @@
 /**
- * Resolves with `value` after `ms`, or rejects as soon as `signal` aborts.
- * Stands in for network calls until the backend exists.
+ * Resolves after `ms`, or rejects when `signal` aborts. Stands in for
+ * network calls.
  */
 export function mockDelay<T>(value: T, ms: number, signal: AbortSignal): Promise<T> {
   return new Promise((resolve, reject) => {

@@ -14,11 +14,9 @@ function flipItems(container: HTMLElement) {
 }
 
 /**
- * Slides list items to their new place after a reorder instead of letting
- * them jump, using the FLIP technique with the Web Animations API. Mark items
- * with `data-flip-id`, call `capture()` just before the change, and the next
- * render animates them. Transforms stay clipped by scroll containers, and
- * users who prefer reduced motion get the change without animation.
+ * Slides list items to their new place after a reorder (FLIP). Mark items
+ * with `data-flip-id` and call `capture()` just before the change. Reduced
+ * motion skips the animation.
  */
 export function useFlip<T extends HTMLElement>() {
   const containerRef = React.useRef<T>(null)
@@ -39,7 +37,6 @@ export function useFlip<T extends HTMLElement>() {
     snapshot.current = { rects, focused }
   }, [])
 
-  // Runs after every commit, but only acts after capture().
   React.useLayoutEffect(() => {
     const first = snapshot.current
     const container = containerRef.current

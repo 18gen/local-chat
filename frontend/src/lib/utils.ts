@@ -1,10 +1,9 @@
 import { createCn } from "cn/config";
 
 /**
- * Joins class names and resolves Tailwind conflicts. It knows the text roles
- * from globals.css (text-title, …); the package's default cn would take them
- * for text colors, dropping a component's own color and keeping its size.
- * Every file imports cn from here, ui components included.
+ * cn that knows the text roles in globals.css: the package's default takes
+ * them for colors, dropping a component's own color. Every file, ui included,
+ * imports cn from here.
  */
 export const cn = createCn({
   extend: {

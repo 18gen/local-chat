@@ -20,8 +20,8 @@ const favoriteWorkflows = createStoredValue<readonly WorkflowId[]>(
 const beforeChangeListeners = new Set<() => void>();
 
 /**
- * Runs just before the user changes a star, while the page still shows the
- * old order, so lists can animate to the new one. Returns an unsubscribe.
+ * Runs just before a star changes, while the old order is still shown, so
+ * lists can animate to the new one.
  */
 export function onBeforeFavoritesChange(listener: () => void) {
   beforeChangeListeners.add(listener);

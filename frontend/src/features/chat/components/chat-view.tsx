@@ -29,8 +29,6 @@ export function ChatView() {
 
   return (
     <>
-      {/* The sidebar and the tab already name this page, so the header holds
-          the main action on the left and the auto-delete setting on the right. */}
       <PageHeader>
         <NewChatButton
           disabled={isEmpty}
@@ -40,19 +38,15 @@ export function ChatView() {
         <RetentionSelect ttlMs={ttlMs} onTtlChange={setTtlMs} messages={messages} />
       </PageHeader>
 
-      {/* The start screen and the conversation share one layout with the
-          composer at the same place in the tree, so React keeps it when the
-          last messages expire: a half-written message, focus and IME input
-          survive. The composer is the same width in both, so it slides to
-          the center cleanly as the messages fade out. */}
+      {/* One layout for both states keeps the composer mounted, so a half-written
+          message, focus and IME input survive the chat emptying. */}
       <div
         className={cn(
           "flex min-h-0 flex-1 flex-col",
           isEmpty && "items-center justify-center gap-6 pb-16",
         )}
       >
-        {/* Different keys, so the messages fade out and the title fades in
-            instead of one morphing into the other. */}
+        {/* Different keys, so the list fades out and the title fades in. */}
         {isEmpty ? (
           <ExpireTransition key="start">
             <h1 className="text-title">{t.chat.emptyTitle}</h1>

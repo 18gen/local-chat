@@ -154,8 +154,7 @@ function ComboboxItem({
   )
 }
 
-// Announces the list's status to screen readers. It stays mounted, as Base UI
-// requires; with nothing to say it renders empty and takes no space.
+// Screen-reader status. Base UI needs it mounted; empty, it takes no space.
 function ComboboxStatus({ className, ...props }: ComboboxPrimitive.Status.Props) {
   return (
     <ComboboxPrimitive.Status

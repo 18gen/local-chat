@@ -1,7 +1,4 @@
-/**
- * Staff roles (職種). Labels live in t.account.roles, which TypeScript
- * requires for every role.
- */
+/** Staff roles (職種). Labels are in t.account.roles. */
 export type StaffRole =
   | "doctor"
   | "nurse"

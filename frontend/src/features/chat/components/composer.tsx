@@ -9,16 +9,13 @@ import { t } from "@/locales";
 
 type ComposerProps = {
   onSend: (text: string) => void;
-  /** A reply is on its way: the send button becomes a stop button. */
   pending?: boolean;
   onStop?: () => void;
-  /** The text field, e.g. to focus it. */
   ref?: Ref<HTMLTextAreaElement>;
 };
 
 export function Composer({ onSend, pending = false, onStop, ref }: ComposerProps) {
   const [value, setValue] = useState("");
-  // Typing the next message is fine while a reply streams; sending waits.
   const canSend = value.trim().length > 0 && !pending;
 
   const submit = () => {
@@ -40,10 +37,8 @@ export function Composer({ onSend, pending = false, onStop, ref }: ComposerProps
         value={value}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={(event) => {
-          // Enter sends, Shift+Enter adds a newline. Skip while an IME
-          // (e.g. Japanese input) is composing so confirming a word doesn't send.
-          // Safari reports the confirming Enter with isComposing false, but
-          // with keyCode 229, so check both.
+          // Not while an IME is composing: Safari reports the confirming Enter
+          // with isComposing false but keyCode 229.
           if (
             event.key === "Enter" &&
             !event.shiftKey &&

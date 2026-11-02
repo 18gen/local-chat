@@ -23,8 +23,6 @@ class LlmUnavailable(Exception):
 
 
 class Llm:
-    """Sends a conversation to the configured model and streams its reply."""
-
     def __init__(self, settings: Settings):
         self._settings = settings
         self._client = (
@@ -39,7 +37,7 @@ class Llm:
         )
 
     async def stream(self, messages: list[LlmMessage]) -> AsyncIterator[str]:
-        """Yields the reply's text as it arrives. Raises LlmUnavailable on failure."""
+        """Yields the reply's text as it arrives; raises LlmUnavailable on failure."""
         if self._client is None:
             raise LlmUnavailable("LLM_API_KEY is not set")
 
@@ -51,13 +49,10 @@ class Llm:
                 model=self._settings.llm_model,
                 messages=[message.model_dump() for message in messages],
                 stream=True,
-                # Nothing is kept on the provider's side beyond its own
-                # abuse-monitoring logs.
                 store=False,
                 **options,
             )
-            # Closing the stream when the client goes away (stop, leaving the
-            # page) also stops generation upstream.
+            # Closing the stream when the client leaves also stops generation upstream.
             try:
                 async for chunk in stream:
                     delta = chunk.choices[0].delta.content if chunk.choices else None
@@ -72,5 +67,5 @@ class Llm:
 
 @lru_cache
 def get_llm() -> Llm:
-    """The shared client, so connections are reused. Tests override it."""
+    """Shared, so connections are reused. Tests override it."""
     return Llm(get_settings())

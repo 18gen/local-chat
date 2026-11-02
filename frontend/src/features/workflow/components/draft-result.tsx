@@ -36,14 +36,12 @@ export function DraftResult({ draft, onChange, generating, onStop, onReset }: Dr
   const titleId = useId();
   const { state: copyState, copy } = useCopyToClipboard();
 
-  // Brought into view as it starts to appear below the notes.
   useEffect(() => {
     section.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   return (
     <section ref={section} className="flex scroll-mt-4 flex-col gap-4">
-      {/* Laid out like the notes field. */}
       <Field>
         <div className="flex flex-wrap items-center gap-3">
           <h2 id={titleId} className="text-heading">

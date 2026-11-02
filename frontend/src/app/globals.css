@@ -2,16 +2,16 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* The app is light only and nothing ever adds a .dark class. This line stays
-   so the dark: classes inside shadcn's components never activate; without it
-   Tailwind would apply them whenever the OS is in dark mode. */
+/*
+ * Light only: no .dark class is ever set, so shadcn's dark: classes never
+ * apply (by default they follow the OS).
+ */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Geist has no Japanese glyphs: Latin uses Geist, Japanese uses the OS font
-     (Hiragino on macOS, Yu Gothic or Meiryo on Windows). */
+  /* Geist has no Japanese glyphs, so Japanese uses the OS font. */
   --font-sans:
     var(--font-geist-sans), "Hiragino Sans", "Hiragino Kaku Gothic ProN",
     "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
@@ -54,10 +54,11 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Text roles. Outside components/ui, text is sized with these instead of
-   text-xs…text-9xl (lint enforces it), so each role is tuned here once. They
-   are in rem, so the text size setting scales them with the rest of the UI.
-   A new role also goes in cn's list in lib/utils.ts. */
+/*
+ * Text roles. Outside components/ui, size text with these, not text-xs…9xl
+ * (lint enforces it). In rem, so the text size setting scales them. A new
+ * role also goes in cn's list in lib/utils.ts.
+ */
 @theme {
   /* Page titles. */
   --text-title: 1.5rem;
@@ -67,8 +68,7 @@
   --text-heading: 1.125rem;
   --text-heading--line-height: calc(1.75 / 1.125);
   --text-heading--font-weight: 600;
-  /* Messages, inputs and descriptions, with room between lines for
-     reading Japanese. */
+  /* Messages, inputs and descriptions; roomy lines for Japanese. */
   --text-body: 1rem;
   --text-body--line-height: 1.75;
   /* Notes, hints and other secondary text. */
@@ -92,16 +92,16 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  /* Orange for things to check, calmer than red. Dark enough for small text
-     on its own 10% tint (Badge variant "warning"): about 5:1. */
+  /* Orange for things to check, calmer than red; 5:1 on its 10% tint. */
   --warning: oklch(0.53 0.19 38.4);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --radius: 0.625rem;
-  /* Navy sidebar on a white page. Contrast against --sidebar (WCAG): text
-     14:1, 70% labels 7.6:1, text on hover 10.9:1, text on the selected
-     (primary) item 4.5:1, focus ring 7.9:1. */
+  /*
+   * Navy sidebar. Contrast (WCAG): text 14:1, 70% labels 7.6:1, hover 10.9:1,
+   * selected item 4.5:1, focus ring 7.9:1.
+   */
   --sidebar: oklch(0.28 0.07 256);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: var(--primary);
@@ -111,17 +111,16 @@
   --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: oklch(0.8 0.1 249);
   --composer: var(--background);
-  /* Tooltips match the sidebar: navy with white text (14:1). The white
-     outline sets them apart when they overlap the sidebar and disappears
-     against the white page. */
+  /* Tooltips match the sidebar; the white outline separates them from it. */
   --tooltip: var(--sidebar);
   --tooltip-foreground: var(--sidebar-foreground);
   --tooltip-border: oklch(1 0 0 / 30%);
 }
 
-/* Chat deletions (React <ViewTransition>, transition type "message-expire"):
-   the expired exchange fades out while the rows below slide up. When nothing
-   is left, the composer slides to the center as the start screen fades in. */
+/*
+ * Chat deletions (<ViewTransition> type "message-expire"): the exchange fades
+ * out as the rows below slide up.
+ */
 ::view-transition-group(.message-expire) {
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.2, 0, 0, 1);

@@ -1,10 +1,6 @@
 /**
- * The text size setting. Every size in the app is in rem, so scaling the
- * root font size enlarges text, buttons, icons and spacing together, like
- * zoom. It is a percentage, so it adds to the browser's own font size.
- *
- * To add or tune a size, change this list; its label lives in the locale
- * (`settings.textSizes`), which TypeScript keeps in step.
+ * Sizes are in rem, so scaling the root font enlarges the whole UI like zoom.
+ * A percentage, so it adds to the browser's own setting.
  */
 export const TEXT_SIZES = {
   sm: 0.875,
@@ -16,8 +12,6 @@ export type TextSize = keyof typeof TEXT_SIZES;
 
 export const DEFAULT_TEXT_SIZE: TextSize = "md";
 
-// A display preference, like starred workflows: never patient data or chat
-// content.
 export const TEXT_SIZE_STORAGE_KEY = "local-chat:text-size";
 
 export function isTextSize(value: unknown): value is TextSize {
@@ -29,8 +23,7 @@ export function applyTextSize(size: TextSize) {
 }
 
 /**
- * Applies the saved size from <head>, before the first paint, so a page
- * never shows at the default size first. From the Next.js guide "Preventing
- * flash before hydration".
+ * Applies the saved size before the first paint (Next.js guide "Preventing
+ * flash before hydration").
  */
 export const TEXT_SIZE_SCRIPT = `(function(){try{var s=${JSON.stringify(TEXT_SIZES)}[localStorage.getItem(${JSON.stringify(TEXT_SIZE_STORAGE_KEY)})];if(typeof s==="number")document.documentElement.style.fontSize=s*100+"%"}catch(e){}})()`;

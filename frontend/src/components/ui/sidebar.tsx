@@ -24,8 +24,8 @@ import { PanelLeftIcon } from "lucide-react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-// Sized for clinical use: 44px menu targets and 16px text (see the button
-// variants below). The icon strip fits a 44px button plus 8px padding a side.
+// Sized for clinical use: 44px targets and 16px text; the icon strip fits a
+// 44px button plus 8px padding a side.
 const SIDEBAR_WIDTH = "18rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3.75rem"
@@ -368,9 +368,8 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-// Collapsed, the label is only faded out. pointer-events-none keeps it from
-// covering the menu buttons, and whitespace-nowrap stops Japanese text, which
-// can break between any characters, wrapping and spilling over them.
+// Collapsed, the label only fades out: pointer-events-none keeps it off the
+// buttons, and nowrap stops Japanese text wrapping over them.
 function SidebarGroupLabel({
   className,
   asChild = false,
@@ -513,8 +512,7 @@ function SidebarMenuButton({
       <TooltipContent
         side="right"
         align="center"
-        // Same 16px as the open sidebar's labels, and clear of the strip so
-        // the arrow points at the button over the page.
+        // 16px like the open labels, clear of the strip.
         sideOffset={12}
         className="text-base"
         hidden={state !== "collapsed" || isMobile}

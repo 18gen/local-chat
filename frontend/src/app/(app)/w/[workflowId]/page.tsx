@@ -19,7 +19,7 @@ import { DraftWorkflow } from "@/features/workflow/components/draft-workflow";
 import { getWorkflow, WORKFLOWS } from "@/features/workflow/workflows";
 import { t } from "@/locales";
 
-// Prerender every built-in workflow. Cache Components requires at least one.
+// Cache Components needs at least one prerendered param.
 export function generateStaticParams() {
   return WORKFLOWS.map((workflow) => ({ workflowId: workflow.id }));
 }
@@ -31,9 +31,7 @@ export async function generateMetadata({
   return workflow ? { title: t.workflow.items[workflow.id].title } : {};
 }
 
-// With Partial Prefetching every workflow link shares one App Shell, so the
-// URL is only read inside <Suspense>, as in Next.js's "Move URL data behind
-// Suspense" guide.
+// Params are read inside <Suspense>, so all workflow links share one prefetched shell.
 async function resolveWorkflow(
   params: PageProps<"/w/[workflowId]">["params"],
 ) {
@@ -96,8 +94,6 @@ export default function WorkflowPage({
   // Each run is for one patient, so nothing typed here outlives the visit.
   return (
     <ResetOnLeave>
-      {/* A breadcrumb rather than a back button: it shows where this page
-          sits, so the link to the list is right however you got here. */}
       <PageHeader>
         <Breadcrumb>
           <BreadcrumbList>
