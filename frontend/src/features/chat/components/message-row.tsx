@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import {
   Message,
@@ -7,7 +9,8 @@ import {
 import type { ChatMessage } from "@/features/chat/types";
 import { CopyButton } from "./copy-button";
 
-export function MessageRow({ message }: { message: ChatMessage }) {
+// Memoized: while a reply streams in, only that message re-renders.
+export const MessageRow = memo(function MessageRow({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
 
   // shadcn's Message and Bubble default to text-sm; messages are body text.
@@ -38,4 +41,4 @@ export function MessageRow({ message }: { message: ChatMessage }) {
       </MessageContent>
     </Message>
   );
-}
+});
