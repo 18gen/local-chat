@@ -47,3 +47,8 @@ next-env.d.ts
 .vscode/
 .idea/
 .claude/settings.local.json
+
+# python
+.venv/
+__pycache__/
+.pytest_cache/
