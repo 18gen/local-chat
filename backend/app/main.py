@@ -2,13 +2,13 @@ from collections.abc import AsyncIterable
 from datetime import date
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 
 from app.config import Settings, get_settings
 from app.llm import Llm, LlmMessage, get_llm
 from app.prompts import CHAT_SYSTEM_PROMPT, DRAFT_SYSTEM_PROMPTS, patient_line
-from app.schemas import ChatRequest, DraftRequest, HealthResponse
+from app.schemas import ChatRequest, DraftRequest, HealthResponse, ModelsResponse
 from app.streaming import EventStreamHeaders, ui_message_stream
 
 # Stateless: every request carries what it needs, and nothing it carries is
@@ -17,26 +17,47 @@ app = FastAPI(title="LocalChat API")
 app.add_middleware(EventStreamHeaders)
 
 
+def chosen_model(
+    settings: Annotated[Settings, Depends(get_settings)], model: str | None = None
+) -> str:
+    """The ?model= query, which must be one on offer; the default without it.
+    A dependency, so a bad one is refused before the stream starts."""
+    if model is None:
+        return settings.llm_models[0]
+    if model not in settings.llm_models:
+        raise HTTPException(status_code=422, detail="Unknown model")
+    return model
+
+
 @app.get("/api/health")
 async def health(settings: Annotated[Settings, Depends(get_settings)]) -> HealthResponse:
-    return HealthResponse(model=settings.llm_model, configured=bool(settings.llm_api_key))
+    return HealthResponse(configured=bool(settings.llm_api_key))
+
+
+@app.get("/api/models")
+async def models(settings: Annotated[Settings, Depends(get_settings)]) -> ModelsResponse:
+    return ModelsResponse(models=settings.llm_models)
 
 
 @app.post("/api/chat", response_class=EventSourceResponse)
 async def chat(
-    request: ChatRequest, llm: Annotated[Llm, Depends(get_llm)]
+    request: ChatRequest,
+    model: Annotated[str, Depends(chosen_model)],
+    llm: Annotated[Llm, Depends(get_llm)],
 ) -> AsyncIterable[ServerSentEvent]:
     messages = [
         LlmMessage(role="system", content=CHAT_SYSTEM_PROMPT),
         *(LlmMessage(role=message.role, content=message.content) for message in request.messages),
     ]
-    async for event in ui_message_stream(llm.stream(messages)):
+    async for event in ui_message_stream(llm.stream(messages, model)):
         yield event
 
 
 @app.post("/api/drafts", response_class=EventSourceResponse)
 async def create_draft(
-    request: DraftRequest, llm: Annotated[Llm, Depends(get_llm)]
+    request: DraftRequest,
+    model: Annotated[str, Depends(chosen_model)],
+    llm: Annotated[Llm, Depends(get_llm)],
 ) -> AsyncIterable[ServerSentEvent]:
     patient = request.patient
     header = patient_line(
@@ -53,5 +74,5 @@ async def create_draft(
         LlmMessage(role="system", content=DRAFT_SYSTEM_PROMPTS[request.workflow_id]),
         LlmMessage(role="user", content=f"{header}\n\nメモ：\n{notes}"),
     ]
-    async for event in ui_message_stream(llm.stream(messages)):
+    async for event in ui_message_stream(llm.stream(messages, model)):
         yield event

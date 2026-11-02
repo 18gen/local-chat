@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,13 +9,17 @@ class Settings(BaseSettings):
 
     # The OpenAI API by default, or any OpenAI-compatible server.
     llm_api_key: str = ""
-    llm_model: str = "gpt-6-luna"
+    # The models staff can choose from; the first is the default.
+    llm_models: list[str] = Field(default=["gpt-6-luna"], min_length=1)
     llm_base_url: str | None = None
-    # Sent only when set: not every OpenAI-compatible server supports it.
+    # Each sent only when set: not every OpenAI-compatible server supports them.
     llm_reasoning_effort: str | None = None
+    llm_presence_penalty: float | None = None
+    llm_max_tokens: int | None = None
     llm_timeout_seconds: float = 60
 
-    model_config = SettingsConfigDict(env_file=".env")
+    # Empty values count as unset, so .env can list a setting without a value.
+    model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True)
 
 
 @lru_cache

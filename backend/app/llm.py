@@ -36,17 +36,25 @@ class Llm:
             else None
         )
 
-    async def stream(self, messages: list[LlmMessage]) -> AsyncIterator[str]:
-        """Yields the reply's text as it arrives; raises LlmUnavailable on failure."""
+    async def stream(self, messages: list[LlmMessage], model: str) -> AsyncIterator[str]:
+        """Yields the reply's text as it arrives; raises LlmUnavailable on failure,
+        including a reply cut off at max_tokens, which must not pass for a whole one."""
         if self._client is None:
             raise LlmUnavailable("LLM_API_KEY is not set")
 
-        options = {}
-        if self._settings.llm_reasoning_effort:
-            options["reasoning_effort"] = self._settings.llm_reasoning_effort
+        settings = self._settings
+        options = {
+            name: value
+            for name, value in {
+                "reasoning_effort": settings.llm_reasoning_effort,
+                "presence_penalty": settings.llm_presence_penalty,
+                "max_tokens": settings.llm_max_tokens,
+            }.items()
+            if value is not None
+        }
         try:
             stream = await self._client.chat.completions.create(
-                model=self._settings.llm_model,
+                model=model,
                 messages=[message.model_dump() for message in messages],
                 stream=True,
                 store=False,
@@ -55,9 +63,14 @@ class Llm:
             # Closing the stream when the client leaves also stops generation upstream.
             try:
                 async for chunk in stream:
-                    delta = chunk.choices[0].delta.content if chunk.choices else None
-                    if delta:
-                        yield delta
+                    if not chunk.choices:
+                        continue
+                    choice = chunk.choices[0]
+                    if choice.delta.content:
+                        yield choice.delta.content
+                    if choice.finish_reason == "length":
+                        logger.warning("LLM reply cut off at max_tokens")
+                        raise LlmUnavailable("The reply reached max_tokens")
             finally:
                 await stream.close()
         except OpenAIError as error:

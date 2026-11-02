@@ -1,11 +1,13 @@
+import asyncio
 import json
 from datetime import date
 
 import pytest
 from fastapi.testclient import TestClient
+from openai.types.chat import ChatCompletionChunk
 
 from app.config import Settings, get_settings
-from app.llm import LlmMessage, LlmUnavailable, get_llm
+from app.llm import Llm, LlmMessage, LlmUnavailable, get_llm
 from app.main import app
 from app.prompts import CHAT_SYSTEM_PROMPT, age_on
 
@@ -29,9 +31,11 @@ class FakeLlm:
         self.reply = reply
         self.fail_midway = fail_midway
         self.sent: list[LlmMessage] = []
+        self.model: str | None = None
 
-    async def stream(self, messages: list[LlmMessage]):
+    async def stream(self, messages: list[LlmMessage], model: str):
         self.sent = messages
+        self.model = model
         half = len(self.reply) // 2
         yield self.reply[:half]
         if self.fail_midway:
@@ -49,12 +53,23 @@ def text_of(stream: list) -> str:
     return "".join(e["delta"] for e in stream if isinstance(e, dict) and e["type"] == "text-delta")
 
 
+def make_settings(**values) -> Settings:
+    """Never from backend/.env, which holds the real API key."""
+    return Settings(_env_file=None, **values)
+
+
+@pytest.fixture(autouse=True)
+def settings():
+    app.dependency_overrides[get_settings] = lambda: make_settings()
+    yield
+    app.dependency_overrides.clear()
+
+
 @pytest.fixture
 def llm():
     fake = FakeLlm()
     app.dependency_overrides[get_llm] = lambda: fake
-    yield fake
-    app.dependency_overrides.clear()
+    return fake
 
 
 client = TestClient(app)
@@ -121,27 +136,126 @@ def test_reply_streams_as_an_ai_sdk_ui_message_stream(llm):
 
 def test_model_failure_midway_ends_with_an_error_without_details():
     app.dependency_overrides[get_llm] = lambda: FakeLlm(fail_midway=True)
-    try:
-        response = client.post(
-            "/api/chat", json={"messages": [{"role": "user", "content": "こんにちは"}]}
-        )
-    finally:
-        app.dependency_overrides.clear()
+    response = client.post(
+        "/api/chat", json={"messages": [{"role": "user", "content": "こんにちは"}]}
+    )
     stream = events(response)
     assert stream[-1] == {"type": "error", "errorText": "The model is unavailable."}
     assert not any(isinstance(e, dict) and e["type"] == "finish" for e in stream)
 
 
-def test_health_reports_the_model_without_the_key():
-    app.dependency_overrides[get_settings] = lambda: Settings(
-        llm_api_key="secret", llm_model="test-model"
-    )
-    try:
-        response = client.get("/api/health")
-    finally:
-        app.dependency_overrides.clear()
-    assert response.json() == {"model": "test-model", "configured": True}
+def test_health_says_whether_a_key_is_set_without_revealing_it():
+    app.dependency_overrides[get_settings] = lambda: make_settings(llm_api_key="secret")
+    response = client.get("/api/health")
+    assert response.json() == {"configured": True}
     assert "secret" not in response.text
+
+
+@pytest.fixture
+def two_models():
+    app.dependency_overrides[get_settings] = lambda: make_settings(
+        llm_models=["model-a", "model-b"]
+    )
+
+
+CHAT = {"messages": [{"role": "user", "content": "こんにちは"}]}
+
+
+def test_models_lists_the_choices_default_first(two_models):
+    assert client.get("/api/models").json() == {"models": ["model-a", "model-b"]}
+
+
+def test_chat_uses_the_chosen_model_or_the_first(llm, two_models):
+    client.post("/api/chat", json=CHAT)
+    assert llm.model == "model-a"
+    client.post("/api/chat?model=model-b", json=CHAT)
+    assert llm.model == "model-b"
+
+
+def test_draft_uses_the_chosen_model(llm, two_models):
+    client.post(
+        "/api/drafts?model=model-b",
+        json={"workflowId": "note-summary", "patient": PATIENT},
+    )
+    assert llm.model == "model-b"
+
+
+def test_a_model_not_on_offer_is_refused_before_streaming(llm, two_models):
+    response = client.post("/api/chat?model=model-c", json=CHAT)
+    assert response.status_code == 422
+    assert llm.model is None
+
+
+class StubCompletions:
+    """Stands in for the OpenAI client's chat.completions: records the request
+    and streams the given chunks."""
+
+    def __init__(self, chunks: list[ChatCompletionChunk]):
+        self.chunks = chunks
+        self.request: dict = {}
+
+    async def create(self, **request):
+        self.request = request
+        return StubStream(self.chunks)
+
+
+class StubStream:
+    def __init__(self, chunks: list[ChatCompletionChunk]):
+        self.chunks = iter(chunks)
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self) -> ChatCompletionChunk:
+        try:
+            return next(self.chunks)
+        except StopIteration:
+            raise StopAsyncIteration from None
+
+    async def close(self):
+        pass
+
+
+def chunk(content: str, finish_reason: str | None = None) -> ChatCompletionChunk:
+    return ChatCompletionChunk.model_validate({
+        "id": "chunk",
+        "object": "chat.completion.chunk",
+        "created": 0,
+        "model": "model-a",
+        "choices": [{"index": 0, "delta": {"content": content}, "finish_reason": finish_reason}],
+    })
+
+
+def stub_llm(settings: Settings, chunks: list[ChatCompletionChunk]) -> tuple[Llm, StubCompletions]:
+    llm = Llm(settings)
+    completions = StubCompletions(chunks)
+    llm._client = type("StubClient", (), {"chat": type("StubChat", (), {"completions": completions})})
+    return llm, completions
+
+
+async def collect(llm: Llm) -> list[str]:
+    return [text async for text in llm.stream([LlmMessage(role="user", content="こんにちは")], "model-a")]
+
+
+def test_options_are_sent_only_when_set():
+    llm, completions = stub_llm(
+        make_settings(llm_api_key="test", llm_presence_penalty=1.0, llm_max_tokens=1500),
+        [chunk("返答です", "stop")],
+    )
+    assert asyncio.run(collect(llm)) == ["返答です"]
+    assert completions.request["model"] == "model-a"
+    assert completions.request["presence_penalty"] == 1.0
+    assert completions.request["max_tokens"] == 1500
+    assert "reasoning_effort" not in completions.request
+
+
+def test_a_reply_cut_off_at_max_tokens_fails():
+    llm, _ = stub_llm(
+        make_settings(llm_api_key="test", llm_max_tokens=2),
+        [chunk("返"), chunk("答", "length")],
+    )
+    with pytest.raises(LlmUnavailable):
+        asyncio.run(collect(llm))
 
 
 @pytest.mark.parametrize(

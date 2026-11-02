@@ -52,6 +52,10 @@ class DraftRequest(CamelModel):
 
 
 class HealthResponse(CamelModel):
-    model: str
     # Whether a key is set, without revealing it.
     configured: bool
+
+
+class ModelsResponse(CamelModel):
+    # The first is the default.
+    models: list[str]
