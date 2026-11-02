@@ -4,22 +4,12 @@ import type { ChatMessage } from "@/features/chat/types";
 
 const HOUR_MS = 60 * 60 * 1000;
 
-// For manual testing, set NEXT_PUBLIC_CHAT_MESSAGE_TTL_MINUTES in .env.local
-// (e.g. 1): the options then count in that many minutes instead of hours.
-const unitOverrideMinutes = Number(
-  process.env.NEXT_PUBLIC_CHAT_MESSAGE_TTL_MINUTES,
-);
-const TTL_UNIT_MS =
-  Number.isFinite(unitOverrideMinutes) && unitOverrideMinutes > 0
-    ? unitOverrideMinutes * 60 * 1000
-    : HOUR_MS;
-
 /** Selectable retention times: 1, 2 or 3 hours. */
-export const DEFAULT_TTL_MS = TTL_UNIT_MS;
+export const DEFAULT_TTL_MS = HOUR_MS;
 export const TTL_OPTIONS_MS = [
   // Development only: 5 seconds, to watch deletion without waiting.
   ...(process.env.NODE_ENV === "development" ? [5_000] : []),
-  ...[1, 2, 3].map((count) => count * TTL_UNIT_MS),
+  ...[1, 2, 3].map((hours) => hours * HOUR_MS),
 ];
 
 export function isTtlOption(value: unknown): value is number {

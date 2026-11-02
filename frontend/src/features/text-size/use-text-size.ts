@@ -30,7 +30,7 @@ export function subscribeTextSize(listener: () => void) {
 }
 
 /** Saves the size; TextSizeSync applies it to the page. */
-export function setTextSize(size: TextSize) {
+function setTextSize(size: TextSize) {
   unsaved = size;
   try {
     localStorage.setItem(TEXT_SIZE_STORAGE_KEY, size);

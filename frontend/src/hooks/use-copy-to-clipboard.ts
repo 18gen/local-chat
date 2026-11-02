@@ -1,6 +1,6 @@
 import * as React from "react"
 
-export type CopyState = "idle" | "copied" | "failed"
+type CopyState = "idle" | "copied" | "failed"
 
 /**
  * Copies text to the clipboard and reports the result, returning to "idle"

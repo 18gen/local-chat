@@ -2,8 +2,6 @@
 // screen-reader-only text, tooltips and placeholders. Developer-facing text
 // (thrown errors, console output, comments) stays in English.
 export const ja = {
-  /** BCP 47 tag for Intl date and number formatting. */
-  locale: "ja-JP",
   app: {
     name: "LocalChat",
     description: "ローカルチャットアプリ",
@@ -24,7 +22,6 @@ export const ja = {
   },
   breadcrumb: {
     label: "パンくずリスト",
-    more: "その他の階層",
   },
   chat: {
     emptyTitle: "何をお手伝いしましょうか？",

@@ -1,4 +1,4 @@
-export type Role = "user" | "assistant";
+type Role = "user" | "assistant";
 
 // Kept in memory only, by the chat screen. Nothing is persisted.
 export type ChatMessage = {

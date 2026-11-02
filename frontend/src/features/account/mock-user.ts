@@ -1,6 +1,6 @@
 import type { StaffRole } from "@/features/account/staff-roles";
 
-export type User = {
+type User = {
   name: string;
   email: string;
   role: StaffRole;

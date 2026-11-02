@@ -2,7 +2,7 @@ import type { Patient } from "@/features/patient/types";
 import { t } from "@/locales";
 
 /** Age in whole years on `today`, from a YYYY-MM-DD birth date. */
-export function ageOn(birthDate: string, today: Date): number {
+function ageOn(birthDate: string, today: Date): number {
   const [year, month, day] = birthDate.split("-").map(Number);
   const hadBirthday =
     today.getMonth() + 1 > month ||
