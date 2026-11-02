@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type Ref } from "react";
+import { useState, type ReactNode, type Ref } from "react";
 import { ArrowUpIcon, SquareIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,12 @@ type ComposerProps = {
   onSend: (text: string) => void;
   pending?: boolean;
   onStop?: () => void;
+  /** Shown left of the send button, such as the model picker. */
+  actions?: ReactNode;
   ref?: Ref<HTMLTextAreaElement>;
 };
 
-export function Composer({ onSend, pending = false, onStop, ref }: ComposerProps) {
+export function Composer({ onSend, pending = false, onStop, actions, ref }: ComposerProps) {
   const [value, setValue] = useState("");
   const canSend = value.trim().length > 0 && !pending;
 
@@ -55,6 +57,7 @@ export function Composer({ onSend, pending = false, onStop, ref }: ComposerProps
         autoFocus
         className="max-h-52 text-body py-1 pl-3 resize-none border-0 bg-transparent shadow-none"
       />
+      {actions}
       {pending ? (
         <Button
           type="button"

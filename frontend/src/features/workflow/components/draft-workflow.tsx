@@ -7,6 +7,8 @@ import { TriangleAlertIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { ModelSelect } from "@/features/model/components/model-select";
+import { useModelChoice } from "@/features/model/use-model-choice";
 import { PatientPicker } from "@/features/patient/components/patient-picker";
 import type { Patient } from "@/features/patient/types";
 import { useDraft } from "@/features/workflow/use-draft";
@@ -25,6 +27,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [notes, setNotes] = useState("");
   const { draft, setDraft, status, generate, stop, reset } = useDraft(workflowId);
+  const { models, model, setModel } = useModelChoice();
   const notesRef = useRef<HTMLTextAreaElement>(null);
   const notesId = useId();
   const generating = status === "generating";
@@ -68,10 +71,17 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
         </Field>
         {draft === null && (
           <div className="flex flex-wrap items-center gap-3">
+            <ModelSelect
+              models={models}
+              value={model}
+              onValueChange={setModel}
+              disabled={generating}
+              className="px-3 text-body data-[size=default]:h-11"
+            />
             <GenerateButton
               generating={generating}
               disabled={!patient || generating}
-              onGenerate={() => patient && generate(patient, notes)}
+              onGenerate={() => patient && generate(patient, notes, model)}
             />
             {generating && <StopButton onClick={stop} />}
           </div>

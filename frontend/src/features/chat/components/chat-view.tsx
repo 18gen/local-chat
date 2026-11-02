@@ -5,6 +5,8 @@ import { useRef } from "react";
 import { PageHeader } from "@/components/page-header";
 import { useChatContext } from "@/features/chat/chat-provider";
 import { nextExpiry } from "@/features/chat/message-retention";
+import { ModelSelect } from "@/features/model/components/model-select";
+import { useModelChoice } from "@/features/model/use-model-choice";
 import { cn } from "@/lib/utils";
 import { t } from "@/locales";
 import { Composer } from "./composer";
@@ -24,6 +26,7 @@ export function ChatView() {
     ttlMs,
     setTtlMs,
   } = useChatContext();
+  const { models, model, setModel } = useModelChoice();
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const isEmpty = messages.length === 0;
 
@@ -74,9 +77,17 @@ export function ChatView() {
             )}
             <Composer
               ref={composerRef}
-              onSend={sendMessage}
+              onSend={(text) => sendMessage(text, model)}
               pending={pending}
               onStop={stopReply}
+              actions={
+                <ModelSelect
+                  models={models}
+                  value={model}
+                  onValueChange={setModel}
+                  className="rounded-full border-transparent text-muted-foreground shadow-none hover:bg-muted data-[size=default]:h-9.5 dark:bg-transparent"
+                />
+              }
             />
             <p className="text-center text-caption text-muted-foreground">
               {t.chat.aiDisclaimer}

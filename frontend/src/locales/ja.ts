@@ -53,6 +53,9 @@ export const ja = {
     send: "メッセージを送信",
     stop: "回答を停止",
   },
+  model: {
+    label: "AIモデル",
+  },
   copy: {
     idle: "コピー",
     copied: "コピーしました",

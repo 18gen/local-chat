@@ -71,7 +71,7 @@ export function useChat(ttlMs: number) {
     };
   }, [messages, ttlMs]);
 
-  const sendMessage = (text: string) => {
+  const sendMessage = (text: string, model: string | null) => {
     if (pending) return;
 
     const userMessage = createMessage("user", text);
@@ -91,7 +91,7 @@ export function useChat(ttlMs: number) {
       // when it started.
       let replyId: string | null = null;
       try {
-        for await (const text of streamReply(history, controller.signal)) {
+        for await (const text of streamReply(history, model, controller.signal)) {
           if (!text) continue;
           if (replyId === null) {
             const reply = createMessage("assistant", text);

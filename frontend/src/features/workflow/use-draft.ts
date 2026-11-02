@@ -16,14 +16,14 @@ export function useDraft(workflowId: DraftWorkflowId) {
     return () => controller.current?.abort();
   }, []);
 
-  const generate = (patient: Patient, notes: string) => {
+  const generate = (patient: Patient, notes: string, model: string | null) => {
     controller.current?.abort();
     const current = new AbortController();
     controller.current = current;
     setStatus("generating");
     void (async () => {
       try {
-        for await (const text of streamDraft(workflowId, patient, notes, current.signal)) {
+        for await (const text of streamDraft(workflowId, patient, notes, model, current.signal)) {
           if (current.signal.aborted) return;
           if (text) setDraft(text);
         }
