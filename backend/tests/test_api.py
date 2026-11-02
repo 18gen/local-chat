@@ -1,3 +1,4 @@
+import json
 from datetime import date
 
 import pytest
@@ -21,18 +22,31 @@ PATIENT = {
 
 
 class FakeLlm:
-    """Stands in for the model: records what it was sent, never calls out."""
+    """Stands in for the model: records what it was sent, never calls out.
+    Streams the reply in two pieces, and can fail after the first."""
 
-    def __init__(self, reply: str = "返答", fail: bool = False):
+    def __init__(self, reply: str = "返答です", fail_midway: bool = False):
         self.reply = reply
-        self.fail = fail
+        self.fail_midway = fail_midway
         self.sent: list[LlmMessage] = []
 
-    async def complete(self, messages: list[LlmMessage]) -> str:
+    async def stream(self, messages: list[LlmMessage]):
         self.sent = messages
-        if self.fail:
+        half = len(self.reply) // 2
+        yield self.reply[:half]
+        if self.fail_midway:
             raise LlmUnavailable("down")
-        return self.reply
+        yield self.reply[half:]
+
+
+def events(response) -> list:
+    """The SSE data lines, JSON-decoded; [DONE] stays a string."""
+    lines = [line[len("data: "):] for line in response.text.splitlines() if line.startswith("data: ")]
+    return [line if line == "[DONE]" else json.loads(line) for line in lines]
+
+
+def text_of(stream: list) -> str:
+    return "".join(e["delta"] for e in stream if isinstance(e, dict) and e["type"] == "text-delta")
 
 
 @pytest.fixture
@@ -52,7 +66,7 @@ def test_chat_sends_the_conversation_after_the_system_prompt(llm):
         json={"messages": [{"role": "user", "content": "こんにちは"}]},
     )
     assert response.status_code == 200
-    assert response.json() == {"reply": "返答"}
+    assert text_of(events(response)) == "返答です"
     assert [m.role for m in llm.sent] == ["system", "user"]
     assert llm.sent[0].content == CHAT_SYSTEM_PROMPT
 
@@ -67,7 +81,7 @@ def test_draft_heads_the_notes_with_the_patient_line(llm):
         json={"workflowId": "discharge-summary", "patient": PATIENT, "notes": "肺炎で入院"},
     )
     assert response.status_code == 200
-    assert response.json() == {"draft": "返答"}
+    assert text_of(events(response)) == "返答です"
     user = llm.sent[1].content
     assert user.startswith("【患者】佐藤 健一（サトウ ケンイチ）")
     assert "ID 00012345" in user
@@ -92,16 +106,30 @@ def test_draft_rejects_an_unknown_workflow(llm):
     assert response.status_code == 422
 
 
-def test_model_failure_is_a_503_without_details():
-    app.dependency_overrides[get_llm] = lambda: FakeLlm(fail=True)
+def test_reply_streams_as_an_ai_sdk_ui_message_stream(llm):
+    response = client.post(
+        "/api/chat", json={"messages": [{"role": "user", "content": "こんにちは"}]}
+    )
+    assert response.headers["content-type"].startswith("text/event-stream")
+    assert response.headers["x-vercel-ai-ui-message-stream"] == "v1"
+    # Next.js would otherwise gzip the stream and hold it back until it ends.
+    assert "no-transform" in response.headers["cache-control"]
+    assert [e if e == "[DONE]" else e["type"] for e in events(response)] == [
+        "start", "text-start", "text-delta", "text-delta", "text-end", "finish", "[DONE]",
+    ]
+
+
+def test_model_failure_midway_ends_with_an_error_without_details():
+    app.dependency_overrides[get_llm] = lambda: FakeLlm(fail_midway=True)
     try:
         response = client.post(
             "/api/chat", json={"messages": [{"role": "user", "content": "こんにちは"}]}
         )
     finally:
         app.dependency_overrides.clear()
-    assert response.status_code == 503
-    assert response.json() == {"detail": "The model is unavailable."}
+    stream = events(response)
+    assert stream[-1] == {"type": "error", "errorText": "The model is unavailable."}
+    assert not any(isinstance(e, dict) and e["type"] == "finish" for e in stream)
 
 
 def test_health_reports_the_model_without_the_key():
