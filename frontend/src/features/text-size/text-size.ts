@@ -24,16 +24,6 @@ export function isTextSize(value: unknown): value is TextSize {
   return typeof value === "string" && Object.hasOwn(TEXT_SIZES, value);
 }
 
-/** The saved size, or null if none is saved or storage is blocked. */
-export function readSavedTextSize(): TextSize | null {
-  try {
-    const value = localStorage.getItem(TEXT_SIZE_STORAGE_KEY);
-    return isTextSize(value) ? value : null;
-  } catch {
-    return null;
-  }
-}
-
 export function applyTextSize(size: TextSize) {
   document.documentElement.style.fontSize = `${TEXT_SIZES[size] * 100}%`;
 }

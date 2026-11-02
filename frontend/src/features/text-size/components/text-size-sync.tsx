@@ -3,7 +3,7 @@
 import { useLayoutEffect } from "react";
 
 import { applyTextSize } from "@/features/text-size/text-size";
-import { getTextSize, subscribeTextSize } from "@/features/text-size/use-text-size";
+import { textSize } from "@/features/text-size/use-text-size";
 
 /**
  * Keeps the page at the chosen text size once React takes over from the
@@ -13,9 +13,9 @@ import { getTextSize, subscribeTextSize } from "@/features/text-size/use-text-si
  */
 export function TextSizeSync() {
   useLayoutEffect(() => {
-    const sync = () => applyTextSize(getTextSize());
+    const sync = () => applyTextSize(textSize.get());
     sync();
-    return subscribeTextSize(sync);
+    return textSize.subscribe(sync);
   }, []);
 
   return null;

@@ -1,50 +1,11 @@
-import { useSyncExternalStore } from "react";
-
 import {
   DEFAULT_TEXT_SIZE,
-  readSavedTextSize,
+  isTextSize,
   TEXT_SIZE_STORAGE_KEY,
-  type TextSize,
 } from "@/features/text-size/text-size";
+import { createStoredValue } from "@/lib/stored-value";
 
-const listeners = new Set<() => void>();
-// The choice when storage is blocked, so it still holds on this page.
-let unsaved: TextSize | null = null;
-
-export function getTextSize(): TextSize {
-  return readSavedTextSize() ?? unsaved ?? DEFAULT_TEXT_SIZE;
-}
-
-function getServerSnapshot(): TextSize {
-  return DEFAULT_TEXT_SIZE;
-}
-
-/** Calls `listener` when the size changes here or in another tab. */
-export function subscribeTextSize(listener: () => void) {
-  listeners.add(listener);
-  window.addEventListener("storage", listener);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", listener);
-  };
-}
-
-/** Saves the size; TextSizeSync applies it to the page. */
-function setTextSize(size: TextSize) {
-  unsaved = size;
-  try {
-    localStorage.setItem(TEXT_SIZE_STORAGE_KEY, size);
-  } catch {
-    // Storage unavailable; `unsaved` keeps the choice for this page.
-  }
-  listeners.forEach((listener) => listener());
-}
-
-export function useTextSize() {
-  const textSize = useSyncExternalStore(
-    subscribeTextSize,
-    getTextSize,
-    getServerSnapshot,
-  );
-  return { textSize, setTextSize };
-}
+// Kept apart from text-size.ts, which the server-rendered root layout imports.
+export const textSize = createStoredValue(TEXT_SIZE_STORAGE_KEY, DEFAULT_TEXT_SIZE, (raw) =>
+  isTextSize(raw) ? raw : null,
+);

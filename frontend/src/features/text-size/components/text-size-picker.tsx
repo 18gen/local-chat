@@ -17,7 +17,7 @@ import {
   TEXT_SIZES,
   type TextSize,
 } from "@/features/text-size/text-size";
-import { useTextSize } from "@/features/text-size/use-text-size";
+import { textSize } from "@/features/text-size/use-text-size";
 import { t } from "@/locales";
 
 const SIZES = Object.keys(TEXT_SIZES) as TextSize[];
@@ -25,7 +25,7 @@ const SIZES = Object.keys(TEXT_SIZES) as TextSize[];
 // shadcn's choice cards (see the Field docs), one per size. Each shows a
 // sample character scaled like that size, and a choice applies at once.
 export function TextSizePicker() {
-  const { textSize, setTextSize } = useTextSize();
+  const current = textSize.use();
   const id = useId();
 
   return (
@@ -33,9 +33,9 @@ export function TextSizePicker() {
       <FieldLegend variant="label">{t.settings.textSize}</FieldLegend>
       <FieldDescription>{t.settings.textSizeDescription}</FieldDescription>
       <RadioGroup
-        value={textSize}
+        value={current}
         onValueChange={(value) => {
-          if (isTextSize(value)) setTextSize(value);
+          if (isTextSize(value)) textSize.set(value);
         }}
         className="grid-cols-3"
       >
