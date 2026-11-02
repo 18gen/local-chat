@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 
-import { generateReply } from "@/features/chat/generate-reply";
+import { streamReply } from "@/features/chat/generate-reply";
 import {
   countExpired,
   nextExpiry,
@@ -93,22 +93,42 @@ export function useChat(ttlMs: number) {
     replyController.current = controller;
     setPending(true);
 
-    generateReply(history, controller.signal)
-      .then((reply) =>
-        setMessages((prev) => [...prev, createMessage("assistant", reply)]),
-      )
-      .catch((error: unknown) => {
+    void (async () => {
+      // The reply appears with its first text and grows from there. Its time
+      // is when it started, for auto-delete.
+      let replyId: string | null = null;
+      try {
+        for await (const text of streamReply(history, controller.signal)) {
+          if (!text) continue;
+          if (replyId === null) {
+            const reply = createMessage("assistant", text);
+            replyId = reply.id;
+            setMessages((prev) => [...prev, reply]);
+          } else {
+            const id = replyId;
+            setMessages((prev) =>
+              prev.map((message) => (message.id === id ? { ...message, content: text } : message)),
+            );
+          }
+        }
+      } catch (error) {
+        // Stopped: keep what arrived. Failed: keep it too, with a notice.
         if (controller.signal.aborted) return;
         setFailed(true);
         // Log the error only; message content must never reach the console.
         console.error("Failed to generate a reply:", error);
-      })
-      .finally(() => {
+      } finally {
         if (replyController.current === controller) {
           replyController.current = null;
           setPending(false);
         }
-      });
+      }
+    })();
+  };
+
+  /** Stops the reply in progress, keeping what has arrived. */
+  const stopReply = () => {
+    replyController.current?.abort();
   };
 
   /** Deletes the whole conversation, cancelling a reply in progress. */
@@ -124,5 +144,5 @@ export function useChat(ttlMs: number) {
     });
   };
 
-  return { messages, pending, failed, sendMessage, clearMessages };
+  return { messages, pending, failed, sendMessage, stopReply, clearMessages };
 }

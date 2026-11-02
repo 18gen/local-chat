@@ -39,7 +39,8 @@ export function MessageList({ messages, pending, oldestExpiresAt }: MessageListP
       </MessageScrollerItem>
     </ExpireTransition>
   ));
-  if (pending) {
+  // "Typing" until the reply's first text arrives; then the reply grows.
+  if (pending && messages.at(-1)?.role === "user") {
     rows.push(
       <ExpireTransition key="typing">
         <MessageScrollerItem>

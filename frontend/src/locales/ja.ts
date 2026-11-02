@@ -55,6 +55,7 @@ export const ja = {
     placeholder: "何でも聞いてください",
     label: "メッセージ",
     send: "メッセージを送信",
+    stop: "回答を停止",
   },
   copy: {
     idle: "コピー",
@@ -124,6 +125,7 @@ export const ja = {
       "入力した内容は保存されず、この画面を離れると消去されます。",
     generate: "下書きを作成",
     generating: "作成しています…",
+    stop: "停止",
     failed: "下書きを作成できませんでした。もう一度お試しください。",
     draftTitle: "下書き",
     aiDraftBadge: "要確認・編集可能",

@@ -8,6 +8,7 @@ import {
   CopyIcon,
   CornerDownLeftIcon,
   RotateCcwIcon,
+  SquareIcon,
   TriangleAlertIcon,
 } from "lucide-react";
 
@@ -33,7 +34,7 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useIsMac } from "@/hooks/use-is-mac";
 import { PatientPicker } from "@/features/patient/components/patient-picker";
 import type { Patient } from "@/features/patient/types";
-import { generateDraft } from "@/features/workflow/generate-draft";
+import { streamDraft } from "@/features/workflow/generate-draft";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
 import { t } from "@/locales";
 
@@ -61,12 +62,13 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
     return () => controller.current?.abort();
   }, []);
 
-  // Bring the new draft into view; it appears below the input.
+  // Bring the draft into view as it starts to appear below the input.
+  const hasDraft = draft !== null;
   useEffect(() => {
-    if (status === "ready") {
+    if (hasDraft) {
       draftSection.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [status]);
+  }, [hasDraft]);
 
   const generating = status === "generating";
   // Notes are optional; the patient alone is enough to draft from.
@@ -89,14 +91,27 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
     const current = new AbortController();
     controller.current = current;
     setStatus("generating");
-    generateDraft(workflowId, patient, input, current.signal)
-      .then((result) => {
-        setDraft(result);
+    void (async () => {
+      try {
+        // The draft appears with its first text and grows from there.
+        for await (const text of streamDraft(workflowId, patient, input, current.signal)) {
+          if (current.signal.aborted) return;
+          if (text) setDraft(text);
+        }
         setStatus("ready");
-      })
-      .catch(() => {
-        if (!current.signal.aborted) setStatus("failed");
-      });
+      } catch {
+        if (current.signal.aborted) return;
+        // A cut-off draft could pass for a whole one, so it goes.
+        setDraft(null);
+        setStatus("failed");
+      }
+    })();
+  };
+
+  // Keeps what has arrived, to edit or copy; with nothing yet, starts over.
+  const stopGenerating = () => {
+    controller.current?.abort();
+    setStatus(draft === null ? "idle" : "ready");
   };
 
   // ⌘Enter (Ctrl+Enter on Windows) works like the button from anywhere on the
@@ -155,17 +170,19 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
         </Field>
         {/* Once a draft exists, start over to generate again so edits aren't overwritten. */}
         {draft === null && (
-          <Button
-            size="xl"
-            onClick={generate}
-            disabled={!canGenerate}
-            aria-keyshortcuts="Meta+Enter Control+Enter"
-            className="self-start"
-          >
-            {generating && <Spinner data-icon="inline-start" aria-hidden />}
-            {generating ? t.workflow.generating : t.workflow.generate}
-            {!generating && <GenerateShortcut />}
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              size="xl"
+              onClick={generate}
+              disabled={!canGenerate}
+              aria-keyshortcuts="Meta+Enter Control+Enter"
+            >
+              {generating && <Spinner data-icon="inline-start" aria-hidden />}
+              {generating ? t.workflow.generating : t.workflow.generate}
+              {!generating && <GenerateShortcut />}
+            </Button>
+            {generating && <StopButton onClick={stopGenerating} />}
+          </div>
         )}
       </section>
 
@@ -187,42 +204,48 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
               </h2>
               <Badge variant="warning">{t.workflow.aiDraftBadge}</Badge>
             </div>
+            {/* Read-only while it's being written, so edits aren't overwritten. */}
             <Textarea
               aria-labelledby={draftTitleId}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
+              readOnly={generating}
               className="min-h-80 p-2 text-body"
             />
             <FieldDescription>{t.workflow.draftReview}</FieldDescription>
           </Field>
-          <div className="flex flex-wrap gap-3">
-            <Button size="xl" onClick={() => void copy(draft)}>
-              {copyState === "copied" ? <CheckIcon /> : <CopyIcon />}
-              {t.copy[copyState]}
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" size="xl">
-                  <RotateCcwIcon />
-                  {t.workflow.reset}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t.workflow.resetTitle}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t.workflow.resetDescription}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t.workflow.cancel}</AlertDialogCancel>
-                  <AlertDialogAction onClick={reset}>
-                    {t.workflow.resetConfirm}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+          {generating ? (
+            <StopButton onClick={stopGenerating} className="self-start" />
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              <Button size="xl" onClick={() => void copy(draft)}>
+                {copyState === "copied" ? <CheckIcon /> : <CopyIcon />}
+                {t.copy[copyState]}
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="xl">
+                    <RotateCcwIcon />
+                    {t.workflow.reset}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.workflow.resetTitle}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t.workflow.resetDescription}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t.workflow.cancel}</AlertDialogCancel>
+                    <AlertDialogAction onClick={reset}>
+                      {t.workflow.resetConfirm}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
         </section>
       )}
     </div>
@@ -251,5 +274,14 @@ function GenerateShortcut() {
         "Ctrl+Enter"
       )}
     </Kbd>
+  );
+}
+
+function StopButton({ onClick, className }: { onClick: () => void; className?: string }) {
+  return (
+    <Button variant="outline" size="xl" onClick={onClick} className={className}>
+      <SquareIcon className="fill-current" />
+      {t.workflow.stop}
+    </Button>
   );
 }

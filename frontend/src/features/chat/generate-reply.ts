@@ -1,16 +1,16 @@
 import type { ChatMessage } from "@/features/chat/types";
-import { postJson } from "@/lib/api";
+import { streamText } from "@/lib/api";
 
 // The rest of the app only depends on this signature. It sends the whole
-// conversation, so the server doesn't need to store any chat history.
-export async function generateReply(
+// conversation, so the server doesn't need to store any chat history, and
+// yields the reply's text so far as it streams in.
+export function streamReply(
   history: ChatMessage[],
   signal: AbortSignal,
-): Promise<string> {
-  const { reply } = await postJson<{ reply: string }>(
+): AsyncGenerator<string> {
+  return streamText(
     "/api/chat",
     { messages: history.map(({ role, content }) => ({ role, content })) },
     signal,
   );
-  return reply;
 }
