@@ -55,6 +55,12 @@ def draft_input(
 
 
 async def headed(header: str, text: AsyncIterator[str]) -> AsyncIterator[str]:
+    """The header line, then the text without the blank lines models open with."""
     yield header + "\n"
+    opening = True
     async for piece in text:
-        yield piece
+        if opening:
+            piece = piece.lstrip()
+            opening = not piece
+        if piece:
+            yield piece

@@ -110,6 +110,15 @@ def test_draft_is_headed_with_the_patient_line_the_model_never_sees(llm):
     assert "退院サマリー" in llm.sent[0].content
 
 
+def test_draft_drops_the_blank_lines_a_model_opens_with():
+    app.dependency_overrides[get_llm] = lambda: FakeLlm(reply="\n\n本文")
+    response = client.post(
+        "/api/drafts", json={"workflowId": "note-summary", "patientId": PATIENT_ID}
+    )
+    head, body = text_of(events(response)).split("\n")
+    assert head.startswith("【患者】") and body == "本文"
+
+
 def test_draft_takes_the_patient_from_the_records_not_from_the_request(llm):
     response = client.post(
         "/api/drafts",
