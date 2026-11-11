@@ -18,11 +18,17 @@ cp .env.example .env   # then paste the API key into LLM_API_KEY
 .venv/bin/pytest                    # tests, without calling the model
 ```
 
+`APP_ENV` says where the backend runs: `development` (the default), `demo`
+(public, fictional data only), `staging` or `production`. The last two are
+inside a hospital, where patient data is real, so the backend refuses to
+start there unless the model is the hospital's own (`LLM_BASE_URL`, with its
+host listed in `LLM_ALLOWED_HOSTS`) and sign-in and patient records are the
+real ones. Neither exists yet, so no hospital setup can start for now.
+
 To use a local model with [Ollama](https://ollama.com), pull it
 (`ollama pull qwen3.5:4b`), then set in `backend/.env`:
 
 ```bash
-LLM_API_KEY=ollama
 LLM_MODELS=["qwen3.5:4b"]
 LLM_BASE_URL=http://127.0.0.1:11434/v1
 LLM_REASONING_EFFORT=none
@@ -39,4 +45,16 @@ forwarded to the backend (`BACKEND_URL`, default `http://127.0.0.1:8000`).
 cd frontend
 npm install
 npm run dev        # http://localhost:3000
+npm test           # tests, for logic such as auto-delete
+```
+
+## Docker
+
+The app as it runs on a server: an nginx proxy in front of the frontend and
+the backend. The proxy sends `/api` straight to the backend.
+
+```bash
+cd deploy
+cp .env.example .env   # the backend's settings; the example uses Ollama
+docker compose up --build   # http://localhost:8080
 ```
