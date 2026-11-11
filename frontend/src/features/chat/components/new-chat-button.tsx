@@ -31,7 +31,8 @@ export function NewChatButton({ disabled, onConfirm, composerRef }: NewChatButto
       <AlertDialogTrigger asChild>
         <Button variant="outline" size="lg" disabled={disabled}>
           <SquarePenIcon />
-          {t.chat.newChat}
+          {/* Phones show the icon alone, so the header fits. */}
+          <span className="max-sm:sr-only">{t.chat.newChat}</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent
