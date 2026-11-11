@@ -6,10 +6,11 @@ import pytest
 from fastapi.testclient import TestClient
 from openai.types.chat import ChatCompletionChunk
 
+from app.auth import User, get_user
 from app.config import Settings, get_settings
+from app.drafts import age_on
 from app.llm import Llm, LlmMessage, LlmUnavailable, get_llm
 from app.main import app
-from app.prompts import CHAT_SYSTEM_PROMPT, age_on
 
 # 佐藤 健一, one of the mock connector's fictional patients.
 PATIENT_ID = "00012345"
@@ -75,23 +76,34 @@ def test_chat_sends_the_conversation_after_the_system_prompt(llm):
     assert response.status_code == 200
     assert text_of(events(response)) == "返答です"
     assert [m.role for m in llm.sent] == ["system", "user"]
-    assert llm.sent[0].content == CHAT_SYSTEM_PROMPT
+    assert "病院の職員を支援する" in llm.sent[0].content
+
+
+def test_chat_tells_the_model_the_users_role(llm):
+    app.dependency_overrides[get_user] = lambda: User(name="看護 花子", role="nurse")
+    client.post("/api/chat", json={"messages": [{"role": "user", "content": "こんにちは"}]})
+    assert "利用者は看護師です" in llm.sent[0].content
+    # Only the role: not who they are.
+    assert "看護 花子" not in llm.sent[0].content
 
 
 def test_chat_rejects_an_empty_conversation(llm):
     assert client.post("/api/chat", json={"messages": []}).status_code == 422
 
 
-def test_draft_heads_the_notes_with_the_patient_line(llm):
+def test_draft_is_headed_with_the_patient_line_the_model_never_sees(llm):
     response = client.post(
         "/api/drafts",
         json={"workflowId": "discharge-summary", "patientId": PATIENT_ID, "notes": "肺炎で入院"},
     )
     assert response.status_code == 200
-    assert text_of(events(response)) == "返答です"
+    head, body = text_of(events(response)).split("\n")
+    assert head.startswith("【患者】佐藤 健一（サトウ ケンイチ）") and head.endswith("ID 00012345")
+    assert body == "返答です"
+    # The model gets the age and gender, not the name or ID.
     user = llm.sent[1].content
-    assert user.startswith("【患者】佐藤 健一（サトウ ケンイチ）")
-    assert "ID 00012345" in user
+    assert user.startswith("患者：") and "歳　男性" in user.splitlines()[0]
+    assert all(secret not in user for secret in ("佐藤", "サトウ", PATIENT_ID))
     assert user.endswith("メモ：\n肺炎で入院")
     # No stay was chosen, so no chart.
     assert "診療記録" not in user
@@ -123,8 +135,7 @@ def test_draft_for_a_stay_reads_its_chart(llm):
     )
     assert response.status_code == 200
     user = llm.sent[1].content
-    patient, stay = user.splitlines()[:2]
-    assert patient.startswith("【患者】佐藤 健一")
+    stay = user.splitlines()[1]
     assert stay.startswith("【入院】") and stay.endswith("〜入院中　呼吸器内科　5階東 501号室")
     # Each entry is headed with its date, kind and author, oldest first.
     assert user.index("入院時記録 医師 田村］") < user.index("看護記録 看護師 小野］")

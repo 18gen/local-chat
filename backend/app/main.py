@@ -7,12 +7,13 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 
 from app.api import patients
+from app.auth import User, get_user
 from app.config import Settings, get_settings
-from app.drafts import draft_input
+from app.drafts import draft_input, headed, patient_line
 from app.emr.connector import EmrConnector, EncounterNotFound, PatientNotFound, get_emr
 from app.emr.models import ClinicalRecord, Patient
 from app.llm import Llm, LlmMessage, get_llm
-from app.prompts import CHAT_SYSTEM_PROMPT, DRAFT_SYSTEM_PROMPTS
+from app.prompts import DRAFT_SYSTEM_PROMPTS, chat_system_prompt
 from app.schemas import ChatRequest, DraftRequest, HealthResponse, ModelsResponse
 from app.streaming import EventStreamHeaders, ui_message_stream
 
@@ -59,9 +60,10 @@ async def chat(
     request: ChatRequest,
     model: Annotated[str, Depends(chosen_model)],
     llm: Annotated[Llm, Depends(get_llm)],
+    user: Annotated[User, Depends(get_user)],
 ) -> AsyncIterable[ServerSentEvent]:
     messages = [
-        LlmMessage(role="system", content=CHAT_SYSTEM_PROMPT),
+        LlmMessage(role="system", content=chat_system_prompt(user.role)),
         *(LlmMessage(role=message.role, content=message.content) for message in request.messages),
     ]
     async for event in ui_message_stream(llm.stream(messages, model)):
@@ -92,12 +94,12 @@ async def create_draft(
     llm: Annotated[Llm, Depends(get_llm)],
 ) -> AsyncIterable[ServerSentEvent]:
     patient, record = source
+    today = date.today()
     messages = [
         LlmMessage(role="system", content=DRAFT_SYSTEM_PROMPTS[request.workflow_id]),
-        LlmMessage(
-            role="user", content=draft_input(patient, record, request.notes, date.today())
-        ),
+        LlmMessage(role="user", content=draft_input(patient, record, request.notes, today)),
     ]
+    text = headed(patient_line(patient, today), llm.stream(messages, model))
     # Whose draft this is, and which notes it was made from.
     notes = record.notes if record else []
     about = {
@@ -107,5 +109,5 @@ async def create_draft(
         "notesFrom": notes[0].recorded_on.isoformat() if notes else None,
         "notesTo": notes[-1].recorded_on.isoformat() if notes else None,
     }
-    async for event in ui_message_stream(llm.stream(messages, model), about):
+    async for event in ui_message_stream(text, about):
         yield event
