@@ -1,0 +1,5 @@
+# Everything but what the image needs; above all, never the .env files.
+*
+!requirements.txt
+!app
+**/__pycache__
