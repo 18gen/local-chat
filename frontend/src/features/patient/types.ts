@@ -13,3 +13,15 @@ export type Patient = {
   /** Another patient has the same name (a patient-master flag in EMRs). */
   hasNamesake: boolean;
 };
+
+/** One hospital stay. */
+export type Encounter = {
+  id: string;
+  department: string;
+  ward: string;
+  room: string;
+  /** YYYY-MM-DD. */
+  admittedOn: string;
+  /** YYYY-MM-DD; null while the patient is still in hospital. */
+  dischargedOn: string | null;
+};

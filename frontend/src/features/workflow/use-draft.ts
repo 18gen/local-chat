@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-import type { Patient } from "@/features/patient/types";
 import { streamDraft } from "@/features/workflow/generate-draft";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
 
@@ -16,14 +15,20 @@ export function useDraft(workflowId: DraftWorkflowId) {
     return () => controller.current?.abort();
   }, []);
 
-  const generate = (patient: Patient, notes: string, model: string | null) => {
+  const generate = (
+    patientId: string,
+    encounterId: string | null,
+    notes: string,
+    model: string | null,
+  ) => {
     controller.current?.abort();
     const current = new AbortController();
     controller.current = current;
     setStatus("generating");
     void (async () => {
       try {
-        for await (const text of streamDraft(workflowId, patient, notes, model, current.signal)) {
+        const stream = streamDraft(workflowId, patientId, encounterId, notes, model, current.signal);
+        for await (const text of stream) {
           if (current.signal.aborted) return;
           if (text) setDraft(text);
         }

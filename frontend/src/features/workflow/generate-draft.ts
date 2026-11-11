@@ -1,15 +1,22 @@
 import { withModel } from "@/features/model/models";
-import type { Patient } from "@/features/patient/types";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
 import { streamText } from "@/lib/api";
 
-// Notes may be empty. Nothing here stores the input or the result.
+// Only IDs go up: the backend reads the patient and the stay's chart from the
+// hospital's records. Notes may be empty. Nothing here stores the input or
+// the result, and a draft that isn't for this patient and stay is refused.
 export function streamDraft(
   workflowId: DraftWorkflowId,
-  patient: Patient,
+  patientId: string,
+  encounterId: string | null,
   notes: string,
   model: string | null,
   signal: AbortSignal,
 ): AsyncGenerator<string> {
-  return streamText(withModel("/api/drafts", model), { workflowId, patient, notes }, signal);
+  return streamText(
+    withModel("/api/drafts", model),
+    { workflowId, patientId, encounterId, notes },
+    signal,
+    { patientId, encounterId },
+  );
 }

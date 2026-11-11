@@ -110,6 +110,17 @@ export const ja = {
     changeDescription: "この患者について入力した内容は消去されます。",
     changeConfirm: "変更する",
   },
+  encounter: {
+    label: "入院",
+    hint: "選んだ入院の診療記録から下書きを作成します。",
+    period: (admitted: string, discharged: string | null) =>
+      discharged ? `${admitted} 〜 ${discharged}` : `${admitted} 〜 入院中`,
+    place: (department: string, ward: string, room: string) =>
+      `${department}　${ward} ${room}号室`,
+    none: "診療記録を使わない（メモだけで作成）",
+    loading: "入院歴を確認しています…",
+    failed: "入院歴を取得できませんでした。メモだけで下書きを作成できます。",
+  },
   workflow: {
     homeTitle: "ワークフロー",
     homeDescription:
@@ -138,8 +149,8 @@ export const ja = {
     items: {
       "discharge-summary": {
         title: "退院サマリー作成",
-        description: "入院中の経過メモから、退院サマリーの下書きを作成します。",
-        inputLabel: "入院中の経過メモ",
+        description: "入院中の診療記録とメモから、退院サマリーの下書きを作成します。",
+        inputLabel: "補足メモ",
         inputPlaceholder:
           "例：診断名、入院時の状態、治療内容、退院時の状態、退院後の方針など",
       },

@@ -9,8 +9,11 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { ModelSelect } from "@/features/model/components/model-select";
 import { useModelChoice } from "@/features/model/use-model-choice";
+import { EncounterPicker } from "@/features/patient/components/encounter-picker";
 import { PatientPicker } from "@/features/patient/components/patient-picker";
+import { defaultEncounterId } from "@/features/patient/list-encounters";
 import type { Patient } from "@/features/patient/types";
+import { useEncounters } from "@/features/patient/use-encounters";
 import { useDraft } from "@/features/workflow/use-draft";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
 import { t } from "@/locales";
@@ -31,12 +34,22 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   const notesRef = useRef<HTMLTextAreaElement>(null);
   const notesId = useId();
   const generating = status === "generating";
+  const locked = generating || draft !== null;
 
-  // Notes belong to the patient, so they go when the patient changes. The
-  // notes field opens once a patient is chosen, then takes focus.
+  const { encounters, status: encountersStatus } = useEncounters(patient?.id ?? null);
+  // Undefined until staff choose: the workflow's default stay then applies.
+  const [chosenEncounterId, setChosenEncounterId] = useState<string | null | undefined>(undefined);
+  const encounterId =
+    chosenEncounterId === undefined
+      ? defaultEncounterId(encounters, workflowId === "discharge-summary")
+      : chosenEncounterId;
+
+  // Notes and the stay belong to the patient, so they go when the patient
+  // changes. The notes field opens once a patient is chosen, then takes focus.
   const changePatient = (next: Patient | null) => {
     flushSync(() => {
       setPatient(next);
+      setChosenEncounterId(undefined);
       setNotes("");
       reset();
     });
@@ -45,12 +58,21 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
 
   return (
     <div className="flex flex-col gap-10">
-      <PatientPicker
-        value={patient}
-        onChange={changePatient}
-        locked={generating || draft !== null}
-        confirmChange={notes.trim() !== ""}
-      />
+      <div className="flex flex-col gap-6">
+        <PatientPicker
+          value={patient}
+          onChange={changePatient}
+          locked={locked}
+          confirmChange={notes.trim() !== ""}
+        />
+        <EncounterPicker
+          encounters={encounters}
+          status={encountersStatus}
+          value={encounterId}
+          onChange={setChosenEncounterId}
+          disabled={locked}
+        />
+      </div>
 
       <section className="flex flex-col gap-4">
         <Field>
@@ -63,7 +85,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             placeholder={text.inputPlaceholder}
-            disabled={!patient || generating || draft !== null}
+            disabled={!patient || locked}
             // Four lines tall.
             className="min-h-32.5 p-2 text-body"
           />
@@ -80,8 +102,9 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             />
             <GenerateButton
               generating={generating}
-              disabled={!patient || generating}
-              onGenerate={() => patient && generate(patient, notes, model)}
+              // Not before the stays arrive: the draft must use the one shown.
+              disabled={!patient || generating || encountersStatus === "loading"}
+              onGenerate={() => patient && generate(patient.id, encounterId, notes, model)}
             />
             {generating && <StopButton onClick={stop} />}
           </div>
