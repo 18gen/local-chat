@@ -6,6 +6,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 
+from app.api import patients
 from app.config import Settings, get_settings
 from app.llm import Llm, LlmMessage, get_llm
 from app.prompts import CHAT_SYSTEM_PROMPT, DRAFT_SYSTEM_PROMPTS, patient_line
@@ -25,6 +26,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(title="LocalChat API", lifespan=lifespan)
 app.add_middleware(EventStreamHeaders)
+app.include_router(patients.router)
 
 
 def chosen_model(
