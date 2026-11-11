@@ -118,6 +118,18 @@
 }
 
 /*
+ * iOS zooms the page in when a focused text box has text under 16px, which
+ * the "small" text size would otherwise give it.
+ */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(1rem, 16px);
+  }
+}
+
+/*
  * Chat deletions (<ViewTransition> type "message-expire"): the exchange fades
  * out as the rows below slide up.
  */
