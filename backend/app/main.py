@@ -1,4 +1,5 @@
-from collections.abc import AsyncIterable
+from collections.abc import AsyncIterable, AsyncIterator
+from contextlib import asynccontextmanager
 from datetime import date
 from typing import Annotated
 
@@ -13,7 +14,16 @@ from app.streaming import EventStreamHeaders, ui_message_stream
 
 # Stateless: every request carries what it needs, and nothing it carries is
 # stored or logged. The frontend reaches it through Next.js rewrites at /api.
-app = FastAPI(title="LocalChat API")
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # Reading the settings refuses an unsafe setup now, not at the first request.
+    get_settings()
+    yield
+
+
+app = FastAPI(title="LocalChat API", lifespan=lifespan)
 app.add_middleware(EventStreamHeaders)
 
 
@@ -31,7 +41,7 @@ def chosen_model(
 
 @app.get("/api/health")
 async def health(settings: Annotated[Settings, Depends(get_settings)]) -> HealthResponse:
-    return HealthResponse(configured=bool(settings.llm_api_key))
+    return HealthResponse(configured=settings.llm_configured)
 
 
 @app.get("/api/models")

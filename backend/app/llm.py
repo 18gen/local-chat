@@ -27,12 +27,13 @@ class Llm:
         self._settings = settings
         self._client = (
             AsyncOpenAI(
-                api_key=settings.llm_api_key,
+                # The client insists on a key; local servers ignore it.
+                api_key=settings.llm_api_key or "unused",
                 base_url=settings.llm_base_url or None,
                 timeout=settings.llm_timeout_seconds,
                 max_retries=1,
             )
-            if settings.llm_api_key
+            if settings.llm_configured
             else None
         )
 
@@ -40,7 +41,7 @@ class Llm:
         """Yields the reply's text as it arrives; raises LlmUnavailable on failure,
         including a reply cut off at max_tokens, which must not pass for a whole one."""
         if self._client is None:
-            raise LlmUnavailable("LLM_API_KEY is not set")
+            raise LlmUnavailable("No model is configured")
 
         settings = self._settings
         options = {

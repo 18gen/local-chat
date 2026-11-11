@@ -52,7 +52,7 @@ class DraftRequest(CamelModel):
 
 
 class HealthResponse(CamelModel):
-    # Whether a key is set, without revealing it.
+    # Whether a model is set up, without revealing the key.
     configured: bool
 
 
