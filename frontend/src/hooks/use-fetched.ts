@@ -6,14 +6,17 @@ export type FetchStatus = "idle" | "loading" | "ready" | "failed";
  * What `load` returns for `key`, in memory only. A null key fetches nothing,
  * and an answer for an earlier key never shows for the current one.
  */
-export function useFetched<T>(key: string | null, load: (signal: AbortSignal) => Promise<T>) {
+export function useFetched<T>(
+  key: string | null,
+  load: (key: string, signal: AbortSignal) => Promise<T>,
+) {
   const [loaded, setLoaded] = useState<{ key: string; data: T | null } | null>(null);
   const loadLatest = useEffectEvent(load);
 
   useEffect(() => {
     if (key === null) return;
     const controller = new AbortController();
-    loadLatest(controller.signal).then(
+    loadLatest(key, controller.signal).then(
       (data) => setLoaded({ key, data }),
       () => {
         if (!controller.signal.aborted) setLoaded({ key, data: null });

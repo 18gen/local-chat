@@ -1,29 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
-
-import { useFlip } from "@/hooks/use-flip";
-import {
-  onBeforeFavoritesChange,
-  useFavoriteWorkflows,
-} from "@/features/workflow/use-favorite-workflows";
-import { sortByFavorite, WORKFLOWS } from "@/features/workflow/workflows";
+import { useWorkflowList } from "@/features/workflow/use-favorite-workflows";
 import { WorkflowCard } from "./workflow-card";
 
 export function WorkflowGrid() {
-  const { favorites, toggleFavorite } = useFavoriteWorkflows();
-  const { containerRef, capture } = useFlip<HTMLUListElement>();
-
-  // A star changed anywhere: record positions first.
-  useEffect(() => onBeforeFavoritesChange(capture), [capture]);
+  const { listRef, workflows, isFavorite, toggleFavorite } = useWorkflowList();
 
   return (
-    <ul ref={containerRef} className="grid gap-5 sm:grid-cols-2">
-      {sortByFavorite(WORKFLOWS, favorites).map((workflow) => (
+    <ul ref={listRef} className="grid gap-5 sm:grid-cols-2">
+      {workflows.map((workflow) => (
         <li key={workflow.id} data-flip-id={workflow.id}>
           <WorkflowCard
             workflow={workflow}
-            starred={favorites.includes(workflow.id)}
+            starred={isFavorite(workflow.id)}
             onToggleFavorite={() => toggleFavorite(workflow.id)}
           />
         </li>

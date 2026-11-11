@@ -1,11 +1,9 @@
 import type { Patient } from "@/features/patient/types";
 import { postJson } from "@/lib/api";
 
-/** At most this many patients come back; `hasMore` says there were more. */
-export const PATIENT_SEARCH_LIMIT = 20;
-
 export type PatientSearchResult = {
   patients: Patient[];
+  /** More matched than came back: the backend caps a search. */
   hasMore: boolean;
 };
 

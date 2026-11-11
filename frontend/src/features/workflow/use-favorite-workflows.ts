@@ -1,4 +1,12 @@
-import { isWorkflowId, type WorkflowId } from "@/features/workflow/workflows";
+import { useEffect } from "react";
+
+import {
+  isWorkflowId,
+  sortByFavorite,
+  WORKFLOWS,
+  type WorkflowId,
+} from "@/features/workflow/workflows";
+import { useFlip } from "@/hooks/use-flip";
 import { createStoredValue } from "@/lib/stored-value";
 
 const NONE: readonly WorkflowId[] = [];
@@ -17,21 +25,25 @@ const favoriteWorkflows = createStoredValue<readonly WorkflowId[]>(
   (ids) => JSON.stringify(ids),
 );
 
+// Run just before a star changes, while the old order is still shown, so
+// every list can slide to the new one.
 const beforeChangeListeners = new Set<() => void>();
 
 /**
- * Runs just before a star changes, while the old order is still shown, so
- * lists can animate to the new one.
+ * The workflows, favorites first. Put `listRef` on the list and mark its
+ * items with `data-flip-id`: they slide into place when a star changes here
+ * or in another list.
  */
-export function onBeforeFavoritesChange(listener: () => void) {
-  beforeChangeListeners.add(listener);
-  return () => {
-    beforeChangeListeners.delete(listener);
-  };
-}
-
-export function useFavoriteWorkflows() {
+export function useWorkflowList() {
   const favorites = favoriteWorkflows.use();
+  const { containerRef, capture } = useFlip<HTMLUListElement>();
+
+  useEffect(() => {
+    beforeChangeListeners.add(capture);
+    return () => {
+      beforeChangeListeners.delete(capture);
+    };
+  }, [capture]);
 
   const toggleFavorite = (id: WorkflowId) => {
     beforeChangeListeners.forEach((listener) => listener());
@@ -42,5 +54,10 @@ export function useFavoriteWorkflows() {
     );
   };
 
-  return { favorites, toggleFavorite };
+  return {
+    listRef: containerRef,
+    workflows: sortByFavorite(WORKFLOWS, favorites),
+    isFavorite: (id: WorkflowId) => favorites.includes(id),
+    toggleFavorite,
+  };
 }

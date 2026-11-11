@@ -1,26 +1,31 @@
 type StreamChunk = { type: string; delta?: string; messageMetadata?: unknown };
 
+// POST keeps patient data out of URLs, and so out of logs.
+function post(path: string, body: object, signal: AbortSignal): Promise<Response> {
+  return fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
 /** POSTs JSON and returns the JSON answer. Errors name only the path. */
 export async function postJson(
   path: `/api/${string}`,
   body: object,
   signal: AbortSignal,
 ): Promise<unknown> {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    signal,
-  });
+  const response = await post(path, body, signal);
   if (!response.ok) throw new Error(`POST ${path} failed`);
   return response.json();
 }
 
 /**
  * POSTs JSON and yields the reply's text so far from an AI SDK UI message
- * stream. POST keeps patient data out of URLs and logs. Throws on an error
- * event or a stream without "finish", so a cut-off reply never passes for a
- * whole one; errors name only the path, as a response can echo the request.
+ * stream. Throws on an error event or a stream without "finish", so a
+ * cut-off reply never passes for a whole one; errors name only the path, as
+ * a response can echo the request.
  * `onStart` gets what the reply says about itself before any text; if it
  * throws, the reply is refused.
  */
@@ -34,12 +39,7 @@ export async function* streamText(
 
   let response: Response;
   try {
-    response = await fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal,
-    });
+    response = await post(path, body, signal);
   } catch {
     throw failed();
   }

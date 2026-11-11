@@ -1,4 +1,5 @@
 import type { Patient } from "@/features/patient/types";
+import { formatDate } from "@/lib/date";
 import { t } from "@/locales";
 
 /** Age in whole years on `today`, from a YYYY-MM-DD birth date. */
@@ -14,10 +15,7 @@ function ageOn(birthDate: string, today: Date): number {
 export function patientDetails(patient: Patient, today: Date): string[] {
   return [
     t.patient.id(patient.id),
-    t.patient.birth(
-      patient.birthDate.replaceAll("-", "/"),
-      ageOn(patient.birthDate, today),
-    ),
+    t.patient.birth(formatDate(patient.birthDate), ageOn(patient.birthDate, today)),
     t.patient.genders[patient.gender],
     patient.admission
       ? t.patient.inpatient(patient.admission.ward, patient.admission.room)

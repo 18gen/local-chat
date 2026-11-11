@@ -140,7 +140,7 @@ export const ja = {
     draftTitle: "下書き",
     draftSource: (count: number, from: string | null, to: string | null) =>
       from && to
-        ? `診療記録 ${count}件（${from.replaceAll("-", "/")}〜${to.replaceAll("-", "/")}）から作成`
+        ? `診療記録 ${count}件（${from}〜${to}）から作成`
         : "この入院の診療記録はありません。メモから作成しました。",
     aiDraftBadge: "要確認・編集可能",
     draftReview:
@@ -149,7 +149,6 @@ export const ja = {
     resetTitle: "最初からやり直しますか？",
     resetDescription: "入力した内容と下書きは消去されます。選んだ患者はそのままです。",
     resetConfirm: "やり直す",
-    cancel: "キャンセル",
     items: {
       "discharge-summary": {
         title: "退院サマリー作成",

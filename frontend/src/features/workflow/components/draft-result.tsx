@@ -20,6 +20,7 @@ import { Field, FieldDescription } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import type { DraftSource } from "@/features/workflow/generate-draft";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { formatDate } from "@/lib/date";
 import { t } from "@/locales";
 import { StopButton } from "./stop-button";
 
@@ -61,7 +62,11 @@ export function DraftResult({
         </div>
         {source && (
           <p className="text-caption text-muted-foreground">
-            {t.workflow.draftSource(source.noteCount, source.notesFrom, source.notesTo)}
+            {t.workflow.draftSource(
+              source.noteCount,
+              source.notesFrom && formatDate(source.notesFrom),
+              source.notesTo && formatDate(source.notesTo),
+            )}
           </p>
         )}
         <Textarea
@@ -94,7 +99,7 @@ export function DraftResult({
                 <AlertDialogDescription>{t.workflow.resetDescription}</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>{t.workflow.cancel}</AlertDialogCancel>
+                <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                 <AlertDialogAction onClick={onReset}>{t.workflow.resetConfirm}</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

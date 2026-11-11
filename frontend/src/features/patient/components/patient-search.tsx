@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/combobox";
 import { InputGroupAddon } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
-import { PATIENT_SEARCH_LIMIT } from "@/features/patient/search-patients";
 import type { Patient } from "@/features/patient/types";
 import {
   usePatientSearch,
@@ -69,7 +68,7 @@ export function PatientSearch({ id, onSelect, autoFocus }: PatientSearchProps) {
       </div>
       <ComboboxContent anchor={anchor}>
         <ComboboxStatus>
-          <SearchStatus status={status} found={patients.length > 0} hasMore={hasMore} />
+          <SearchStatus status={status} count={patients.length} hasMore={hasMore} />
         </ComboboxStatus>
         <ComboboxList>
           {(patient: Patient) => (
@@ -85,17 +84,18 @@ export function PatientSearch({ id, onSelect, autoFocus }: PatientSearchProps) {
 
 function SearchStatus({
   status,
-  found,
+  count,
   hasMore,
 }: {
   status: PatientSearchStatus;
-  found: boolean;
+  /** How many patients are listed. */
+  count: number;
   hasMore: boolean;
 }) {
   if (status === "idle") return t.patient.searchHint;
-  if (status === "searching" && !found) return t.patient.searching;
+  if (status === "searching" && count === 0) return t.patient.searching;
   if (status === "error") return t.patient.failed;
-  if (status === "done" && !found) return t.patient.noResults;
-  if (hasMore) return t.patient.narrowDown(PATIENT_SEARCH_LIMIT);
+  if (status === "done" && count === 0) return t.patient.noResults;
+  if (hasMore) return t.patient.narrowDown(count);
   return null;
 }

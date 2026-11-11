@@ -20,9 +20,8 @@ async function draft(encounterId: string | null) {
   const texts: string[] = [];
   const sources: (DraftSource | null)[] = [];
   const signal = new AbortController().signal;
-  const stream = streamDraft("discharge-summary", PATIENT, encounterId, "", null, signal, (source) =>
-    sources.push(source),
-  );
+  const request = { workflowId: "discharge-summary", patientId: PATIENT, encounterId, notes: "" } as const;
+  const stream = streamDraft(request, null, signal, (source) => sources.push(source));
   const done = (async () => {
     for await (const text of stream) texts.push(text);
   })();

@@ -14,6 +14,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { Encounter } from "@/features/patient/types";
 import type { FetchStatus } from "@/hooks/use-fetched";
+import { formatDate } from "@/lib/date";
 import { t } from "@/locales";
 
 // Radio values are strings; this one stands for "no stay".
@@ -101,8 +102,4 @@ function Option({
       </Field>
     </FieldLabel>
   );
-}
-
-function formatDate(date: string): string {
-  return date.replaceAll("-", "/");
 }

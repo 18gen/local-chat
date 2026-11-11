@@ -31,15 +31,14 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   const text = t.workflow.items[workflowId];
   const [patient, setPatient] = useState<Patient | null>(null);
   const [notes, setNotes] = useState("");
-  const { draft, setDraft, source, status, generate, stop, reset } = useDraft(workflowId);
+  const { draft, setDraft, source, status, generate, stop, reset } = useDraft();
   const { models, model, setModel } = useModelChoice();
   const notesRef = useRef<HTMLTextAreaElement>(null);
   const notesId = useId();
   const generating = status === "generating";
   const locked = generating || draft !== null;
 
-  const patientId = patient?.id ?? null;
-  const stays = useFetched(patientId, (signal) => listEncounters(patientId ?? "", signal));
+  const stays = useFetched(patient?.id ?? null, listEncounters);
   const encounters = stays.data ?? NO_ENCOUNTERS;
   // Undefined until staff choose: the workflow's default stay then applies.
   const [chosenEncounterId, setChosenEncounterId] = useState<string | null | undefined>(undefined);
@@ -109,7 +108,10 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
               generating={generating}
               // Not before the stays arrive: the draft must use the one shown.
               disabled={!patient || generating || stays.status === "loading"}
-              onGenerate={() => patient && generate(patient.id, encounterId, notes, model)}
+              onGenerate={() =>
+                patient &&
+                generate({ workflowId, patientId: patient.id, encounterId, notes }, model)
+              }
             />
             {generating && <StopButton onClick={stop} />}
           </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutGridIcon } from "lucide-react";
@@ -20,16 +19,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useFlip } from "@/hooks/use-flip";
-import {
-  onBeforeFavoritesChange,
-  useFavoriteWorkflows,
-} from "@/features/workflow/use-favorite-workflows";
-import {
-  sortByFavorite,
-  workflowHref,
-  WORKFLOWS,
-} from "@/features/workflow/workflows";
+import { useWorkflowList } from "@/features/workflow/use-favorite-workflows";
+import { workflowHref } from "@/features/workflow/workflows";
 import { t } from "@/locales";
 import { FavoriteStarIcon } from "./favorite-star-icon";
 
@@ -39,11 +30,7 @@ type WorkflowNavProps = {
 
 export function WorkflowNav({ onNavigate }: WorkflowNavProps) {
   const pathname = usePathname();
-  const { favorites, toggleFavorite } = useFavoriteWorkflows();
-  const { containerRef, capture } = useFlip<HTMLUListElement>();
-
-  // A star changed anywhere: record positions first.
-  useEffect(() => onBeforeFavoritesChange(capture), [capture]);
+  const { listRef, workflows, isFavorite, toggleFavorite } = useWorkflowList();
 
   return (
     <SidebarGroup>
@@ -62,11 +49,11 @@ export function WorkflowNav({ onNavigate }: WorkflowNavProps) {
         </TooltipContent>
       </Tooltip>
       <SidebarGroupContent>
-        <SidebarMenu ref={containerRef}>
-          {sortByFavorite(WORKFLOWS, favorites).map((workflow) => {
+        <SidebarMenu ref={listRef}>
+          {workflows.map((workflow) => {
             const href = workflowHref(workflow.id);
             const active = pathname === href;
-            const starred = favorites.includes(workflow.id);
+            const starred = isFavorite(workflow.id);
             const title = t.workflow.items[workflow.id].title;
             return (
               <SidebarMenuItem key={workflow.id} data-flip-id={workflow.id}>
