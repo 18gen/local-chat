@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type PointerEvent } from "react";
 import { InfoIcon } from "lucide-react";
 
 import {
@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -22,11 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   countExpired,
   isTtlOption,
@@ -48,6 +44,11 @@ export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelec
     null,
   );
   const lifetime = formatDuration(ttlMs);
+  const [helpOpen, setHelpOpen] = useState(false);
+  // A tap or click toggles the help; a mouse also opens it by hovering.
+  const onHover = (open: boolean) => (event: PointerEvent) => {
+    if (event.pointerType === "mouse") setHelpOpen(open);
+  };
 
   const handleChange = (value: string) => {
     const next = Number(value);
@@ -76,21 +77,30 @@ export function RetentionSelect({ ttlMs, onTtlChange, messages }: RetentionSelec
           </SelectContent>
         </Select>
         <span className="whitespace-nowrap">{t.chat.autoDeleteSuffix}</span>
-        <Tooltip>
-          <TooltipTrigger asChild>
+        <Popover open={helpOpen} onOpenChange={setHelpOpen}>
+          <PopoverTrigger asChild>
             <Button
               variant="ghost"
               size="icon-sm"
               aria-label={t.chat.autoDeleteInfo}
+              onPointerEnter={onHover(true)}
+              onPointerLeave={onHover(false)}
               className="text-muted-foreground"
             >
               <InfoIcon />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" align="end" className="whitespace-pre-line">
+          </PopoverTrigger>
+          {/* Looks like a tooltip, and leaves focus where it was. */}
+          <PopoverContent
+            side="bottom"
+            align="end"
+            onOpenAutoFocus={(event) => event.preventDefault()}
+            onCloseAutoFocus={(event) => event.preventDefault()}
+            className="w-auto max-w-[min(24rem,calc(100vw-1rem))] bg-tooltip px-3 py-2 whitespace-pre-line text-tooltip-foreground ring-tooltip-border"
+          >
             {t.chat.autoDeleteHelp(lifetime)}
-          </TooltipContent>
-        </Tooltip>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <AlertDialog

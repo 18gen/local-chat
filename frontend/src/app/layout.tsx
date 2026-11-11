@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TextSizeSync } from "@/features/text-size/components/text-size-sync";
@@ -14,6 +14,13 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: { default: t.app.name, template: `%s | ${t.app.name}` },
   description: t.app.description,
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // iOS zooms in on a tapped text box unless the scale is capped.
+  maximumScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
