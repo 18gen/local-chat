@@ -19,11 +19,7 @@ export async function listEncounters(
   return encounters as Encounter[];
 }
 
-/**
- * The stay a workflow starts with. A discharge summary is about a stay, often
- * written after it ended, so it takes the newest; other documents take only a
- * stay still going on, as an old one may have nothing to do with them.
- */
+/** The stay chosen at first: one still going on, or the newest if preferred. */
 export function defaultEncounterId(
   encounters: readonly Encounter[],
   preferNewest: boolean,

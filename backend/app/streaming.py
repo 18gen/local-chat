@@ -17,8 +17,7 @@ async def ui_message_stream(
 ) -> AsyncIterator[ServerSentEvent]:
     """The response has already started, so a failure is an error event, not a
     status code; the frontend also treats a stream without "finish" as failed.
-    `metadata` opens the stream: a draft says whose it is, so the frontend can
-    refuse one that isn't for the patient on screen."""
+    `metadata` opens the stream, e.g. whose draft this is."""
     start = {"type": "start"} if metadata is None else {"type": "start", "messageMetadata": metadata}
     yield ServerSentEvent(data=start)
     yield ServerSentEvent(data={"type": "text-start", "id": TEXT_ID})

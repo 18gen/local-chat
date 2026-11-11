@@ -41,7 +41,8 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   const [chosenEncounterId, setChosenEncounterId] = useState<string | null | undefined>(undefined);
   const encounterId =
     chosenEncounterId === undefined
-      ? defaultEncounterId(encounters, workflowId === "discharge-summary")
+      ? // A discharge summary is often written after the stay ended.
+        defaultEncounterId(encounters, workflowId === "discharge-summary")
       : chosenEncounterId;
 
   // Notes and the stay belong to the patient, so they go when the patient

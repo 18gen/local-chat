@@ -28,10 +28,7 @@ type EncounterPickerProps = {
   disabled?: boolean;
 };
 
-/**
- * Which hospital stay's chart to draft from. Shown in place, with no dialog;
- * a patient who has never stayed gets no question at all.
- */
+/** Which hospital stay's chart to draft from; hidden if there are none. */
 export function EncounterPicker({
   encounters,
   status,

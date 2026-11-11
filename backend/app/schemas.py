@@ -28,12 +28,11 @@ class ChatRequest(CamelModel):
 
 
 class DraftRequest(CamelModel):
-    """Names the patient and the stay; the server reads both from the
-    hospital's records, so nothing about a patient is taken on trust."""
+    """Only IDs: the server reads the patient and the chart itself."""
 
     workflow_id: DraftWorkflowId
     patient_id: str = Field(min_length=1, max_length=64)
-    # The stay whose chart to draft from; without one, only the notes.
+    # Without a stay, the draft is from the notes alone.
     encounter_id: str | None = Field(default=None, min_length=1, max_length=64)
     notes: str = Field(default="", max_length=MAX_TEXT_LENGTH)
 

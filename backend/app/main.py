@@ -71,9 +71,8 @@ async def chat(
 async def draft_source(
     request: DraftRequest, emr: Annotated[EmrConnector, Depends(get_emr)]
 ) -> tuple[Patient, ClinicalRecord | None]:
-    """The patient and, with a stay chosen, its chart, read from the hospital's
-    records. A dependency, so an unknown patient or stay is refused before the
-    stream starts."""
+    """Read from the records, never from the request. A dependency, so an
+    unknown patient or stay is refused before the stream starts."""
     try:
         if request.encounter_id is None:
             return await emr.get_patient(request.patient_id), None

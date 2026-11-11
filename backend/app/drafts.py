@@ -24,9 +24,7 @@ def stay_line(encounter: Encounter) -> str:
 def draft_input(
     patient: Patient, record: ClinicalRecord | None, notes: str, today: date
 ) -> str:
-    """The patient, then the chart of the chosen stay if there is one, then
-    the notes staff typed. The patient line comes from the hospital's records,
-    never from the request."""
+    """The patient, the chosen stay's chart if any, then the notes staff typed."""
     parts = [
         patient_line(
             name=patient.name,
@@ -44,6 +42,5 @@ def draft_input(
         ]
         parts[0] += "\n" + stay_line(record.encounter)
         parts.append("診療記録：\n" + ("\n\n".join(entries) or "（記録なし）"))
-    # Notes are optional; the model then marks what it can't fill as not recorded.
     parts.append("メモ：\n" + (notes.strip() or "（メモなし）"))
     return "\n\n".join(parts)

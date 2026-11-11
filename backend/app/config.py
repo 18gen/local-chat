@@ -30,9 +30,7 @@ class Settings(BaseSettings):
     llm_max_tokens: int | None = None
     llm_timeout_seconds: float = 60
 
-    # Empty values count as unset, so .env can list a setting without a value.
-    # A refused setup is logged, so its error must not show the values: one is
-    # the API key.
+    # Empty values count as unset. Errors hide the values: one is the API key.
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, hide_input_in_errors=True
     )
@@ -44,8 +42,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def refuse_unsafe_setups(self) -> Self:
-        """One wrong setting must not send patient data out of the hospital, or
-        connect the public demo to real records: such a setup doesn't start."""
+        """A setup that could leak patient data doesn't start."""
         problems = []
         if self.app_env in IN_HOSPITAL:
             host = urlsplit(self.llm_base_url or "").hostname

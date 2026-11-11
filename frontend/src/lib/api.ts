@@ -14,8 +14,8 @@ function isFor(owner: ReplyOwner, metadata: unknown): boolean {
  * stream. POST keeps patient data out of URLs and logs. Throws on an error
  * event or a stream without "finish", so a cut-off reply never passes for a
  * whole one; errors name only the path, as a response can echo the request.
- * With `owner`, also throws before any text unless the reply opens by saying
- * it is for that owner, so one patient's text never shows under another.
+ * With `owner`, a reply that doesn't open by naming that owner also throws,
+ * before any text.
  */
 export async function* streamText(
   path: `/api/${string}`,
