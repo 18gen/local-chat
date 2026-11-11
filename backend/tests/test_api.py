@@ -11,16 +11,8 @@ from app.llm import Llm, LlmMessage, LlmUnavailable, get_llm
 from app.main import app
 from app.prompts import CHAT_SYSTEM_PROMPT, age_on
 
-PATIENT = {
-    "id": "00012345",
-    "name": "佐藤 健一",
-    "kana": "サトウ ケンイチ",
-    "birthDate": "1948-03-02",
-    "gender": "male",
-    "department": "呼吸器内科",
-    "admission": {"ward": "5階東", "room": "501"},
-    "hasNamesake": True,
-}
+# 佐藤 健一, one of the mock connector's fictional patients.
+PATIENT_ID = "00012345"
 
 
 class FakeLlm:
@@ -93,21 +85,91 @@ def test_chat_rejects_an_empty_conversation(llm):
 def test_draft_heads_the_notes_with_the_patient_line(llm):
     response = client.post(
         "/api/drafts",
-        json={"workflowId": "discharge-summary", "patient": PATIENT, "notes": "肺炎で入院"},
+        json={"workflowId": "discharge-summary", "patientId": PATIENT_ID, "notes": "肺炎で入院"},
     )
     assert response.status_code == 200
     assert text_of(events(response)) == "返答です"
     user = llm.sent[1].content
     assert user.startswith("【患者】佐藤 健一（サトウ ケンイチ）")
     assert "ID 00012345" in user
-    assert user.endswith("肺炎で入院")
+    assert user.endswith("メモ：\n肺炎で入院")
+    # No stay was chosen, so no chart.
+    assert "診療記録" not in user
     assert "退院サマリー" in llm.sent[0].content
+
+
+def test_draft_takes_the_patient_from_the_records_not_from_the_request(llm):
+    response = client.post(
+        "/api/drafts",
+        json={
+            "workflowId": "note-summary",
+            "patientId": PATIENT_ID,
+            "patient": {"id": PATIENT_ID, "name": "別人 太郎"},
+        },
+    )
+    assert response.status_code == 200
+    assert "別人" not in llm.sent[1].content
+
+
+def test_draft_for_a_stay_reads_its_chart(llm):
+    response = client.post(
+        "/api/drafts",
+        json={
+            "workflowId": "discharge-summary",
+            "patientId": PATIENT_ID,
+            "encounterId": "00012345-2",
+            "notes": "明日退院",
+        },
+    )
+    assert response.status_code == 200
+    user = llm.sent[1].content
+    patient, stay = user.splitlines()[:2]
+    assert patient.startswith("【患者】佐藤 健一")
+    assert stay.startswith("【入院】") and stay.endswith("〜入院中　呼吸器内科　5階東 501号室")
+    # Each entry is headed with its date, kind and author, oldest first.
+    assert user.index("入院時記録 医師 田村］") < user.index("看護記録 看護師 小野］")
+    assert "市中肺炎（肺炎球菌性）" in user
+    assert user.endswith("メモ：\n明日退院")
+
+
+def test_draft_for_a_stay_without_a_chart_says_so(llm):
+    client.post(
+        "/api/drafts",
+        json={"workflowId": "note-summary", "patientId": PATIENT_ID, "encounterId": "00012345-1"},
+    )
+    assert "診療記録：\n（記録なし）" in llm.sent[1].content
+
+
+def test_draft_says_whose_it_is_before_any_text(llm):
+    response = client.post(
+        "/api/drafts",
+        json={"workflowId": "note-summary", "patientId": PATIENT_ID, "encounterId": "00012345-2"},
+    )
+    assert events(response)[0] == {
+        "type": "start",
+        "messageMetadata": {"patientId": PATIENT_ID, "encounterId": "00012345-2"},
+    }
+
+
+@pytest.mark.parametrize(
+    "ids",
+    [
+        {"patientId": "99999999"},
+        {"patientId": "99999999", "encounterId": "00012345-2"},
+        # Another patient's stay.
+        {"patientId": PATIENT_ID, "encounterId": "00023456-3"},
+    ],
+)
+def test_draft_refuses_an_unknown_patient_or_stay_before_streaming(llm, ids):
+    response = client.post("/api/drafts", json={"workflowId": "note-summary", **ids})
+    assert response.status_code == 404
+    assert llm.sent == []
 
 
 def test_draft_without_notes_says_so(llm):
     response = client.post(
         "/api/drafts",
-        json={"workflowId": "note-summary", "patient": PATIENT},
+        json={"workflowId": "note-summary", "patientId": PATIENT_ID},
     )
     assert response.status_code == 200
     assert llm.sent[1].content.endswith("（メモなし）")
@@ -116,7 +178,7 @@ def test_draft_without_notes_says_so(llm):
 def test_draft_rejects_an_unknown_workflow(llm):
     response = client.post(
         "/api/drafts",
-        json={"workflowId": "manual-search", "patient": PATIENT},
+        json={"workflowId": "manual-search", "patientId": PATIENT_ID},
     )
     assert response.status_code == 422
 
@@ -224,7 +286,7 @@ def test_chat_uses_the_chosen_model_or_the_first(llm, two_models):
 def test_draft_uses_the_chosen_model(llm, two_models):
     client.post(
         "/api/drafts?model=model-b",
-        json={"workflowId": "note-summary", "patient": PATIENT},
+        json={"workflowId": "note-summary", "patientId": PATIENT_ID},
     )
     assert llm.model == "model-b"
 

@@ -1,6 +1,5 @@
 """Request and response shapes, in camelCase JSON as the frontend writes it."""
 
-from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -28,26 +27,14 @@ class ChatRequest(CamelModel):
     messages: list[ChatMessage] = Field(min_length=1, max_length=MAX_MESSAGES)
 
 
-class Admission(CamelModel):
-    ward: str
-    room: str
-
-
-class Patient(CamelModel):
-    """The frontend's Patient; fields the server doesn't need are ignored."""
-
-    id: str
-    name: str
-    kana: str
-    birth_date: date
-    gender: Literal["male", "female", "other", "unknown"]
-    department: str
-    admission: Admission | None = None
-
-
 class DraftRequest(CamelModel):
+    """Names the patient and the stay; the server reads both from the
+    hospital's records, so nothing about a patient is taken on trust."""
+
     workflow_id: DraftWorkflowId
-    patient: Patient
+    patient_id: str = Field(min_length=1, max_length=64)
+    # The stay whose chart to draft from; without one, only the notes.
+    encounter_id: str | None = Field(default=None, min_length=1, max_length=64)
     notes: str = Field(default="", max_length=MAX_TEXT_LENGTH)
 
 

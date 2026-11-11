@@ -1,9 +1,17 @@
 import unicodedata
 from datetime import date, timedelta
 
-from app.emr.connector import PATIENT_SEARCH_LIMIT, PatientNotFound
+from app.emr.connector import PATIENT_SEARCH_LIMIT, EncounterNotFound, PatientNotFound
+from app.emr.mock.notes import MOCK_NOTES
 from app.emr.mock.patients import MOCK_PATIENTS, MockPatient
-from app.emr.models import Admission, Encounter, Patient, PatientSearchResult
+from app.emr.models import (
+    Admission,
+    ClinicalRecord,
+    Encounter,
+    Note,
+    Patient,
+    PatientSearchResult,
+)
 
 HIRAGANA_TO_KATAKANA = {code: code + 0x60 for code in range(ord("ぁ"), ord("ゖ") + 1)}
 
@@ -35,10 +43,31 @@ class MockEmrConnector:
             has_more=len(found) > PATIENT_SEARCH_LIMIT,
         )
 
+    async def get_patient(self, patient_id: str) -> Patient:
+        return to_patient(find(patient_id))
+
+    async def get_record(self, patient_id: str, encounter_id: str) -> ClinicalRecord:
+        encounters = await self.list_encounters(patient_id)
+        encounter = next((e for e in encounters if e.id == encounter_id), None)
+        if encounter is None:
+            raise EncounterNotFound
+        return ClinicalRecord(
+            patient=to_patient(find(patient_id)),
+            encounter=encounter,
+            notes=[
+                Note(
+                    id=f"{encounter_id}-N{number}",
+                    recorded_on=encounter.admitted_on + timedelta(days=note.day),
+                    kind=note.kind,
+                    author=note.author,
+                    text=note.text,
+                )
+                for number, note in enumerate(MOCK_NOTES.get(encounter_id, ()), start=1)
+            ],
+        )
+
     async def list_encounters(self, patient_id: str) -> list[Encounter]:
-        patient = next((p for p in MOCK_PATIENTS if p.id == patient_id), None)
-        if patient is None:
-            raise PatientNotFound
+        patient = find(patient_id)
         today = date.today()
         return [
             Encounter(
@@ -56,6 +85,13 @@ class MockEmrConnector:
             )
             for index, stay in enumerate(patient.stays)
         ]
+
+
+def find(patient_id: str) -> MockPatient:
+    patient = next((p for p in MOCK_PATIENTS if p.id == patient_id), None)
+    if patient is None:
+        raise PatientNotFound
+    return patient
 
 
 def to_patient(patient: MockPatient) -> Patient:

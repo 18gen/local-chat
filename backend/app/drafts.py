@@ -1,0 +1,49 @@
+"""What the model is given to write a draft from."""
+
+from datetime import date
+
+from app.emr.models import ClinicalRecord, Encounter, NoteKind, Patient
+from app.prompts import patient_line
+
+NOTE_KIND_LABELS: dict[NoteKind, str] = {
+    "admission": "入院時記録",
+    "progress": "経過記録",
+    "nursing": "看護記録",
+    "operation": "手術記録",
+}
+
+
+def stay_line(encounter: Encounter) -> str:
+    until = encounter.discharged_on.isoformat() if encounter.discharged_on else "入院中"
+    return (
+        f"【入院】{encounter.admitted_on.isoformat()}〜{until}　"
+        f"{encounter.department}　{encounter.ward} {encounter.room}号室"
+    )
+
+
+def draft_input(
+    patient: Patient, record: ClinicalRecord | None, notes: str, today: date
+) -> str:
+    """The patient, then the chart of the chosen stay if there is one, then
+    the notes staff typed. The patient line comes from the hospital's records,
+    never from the request."""
+    parts = [
+        patient_line(
+            name=patient.name,
+            kana=patient.kana,
+            birth_date=patient.birth_date,
+            gender=patient.gender,
+            patient_id=patient.id,
+            today=today,
+        )
+    ]
+    if record is not None:
+        entries = [
+            f"［{note.recorded_on.isoformat()} {NOTE_KIND_LABELS[note.kind]} {note.author}］\n{note.text}"
+            for note in record.notes
+        ]
+        parts[0] += "\n" + stay_line(record.encounter)
+        parts.append("診療記録：\n" + ("\n\n".join(entries) or "（記録なし）"))
+    # Notes are optional; the model then marks what it can't fill as not recorded.
+    parts.append("メモ：\n" + (notes.strip() or "（メモなし）"))
+    return "\n\n".join(parts)

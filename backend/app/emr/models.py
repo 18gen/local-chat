@@ -38,6 +38,28 @@ class Encounter(CamelModel):
     discharged_on: date | None
 
 
+NoteKind = Literal["admission", "progress", "nursing", "operation"]
+
+
+class Note(CamelModel):
+    """One entry in the chart, as free text."""
+
+    id: str
+    recorded_on: date
+    kind: NoteKind
+    author: str
+    text: str
+
+
+class ClinicalRecord(CamelModel):
+    """What the chart holds about one hospital stay."""
+
+    patient: Patient
+    encounter: Encounter
+    # Oldest first.
+    notes: list[Note]
+
+
 class PatientSearchResult(CamelModel):
     patients: list[Patient]
     # More matched than came back.

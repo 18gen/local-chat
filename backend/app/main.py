@@ -8,8 +8,11 @@ from fastapi.sse import EventSourceResponse, ServerSentEvent
 
 from app.api import patients
 from app.config import Settings, get_settings
+from app.drafts import draft_input
+from app.emr.connector import EmrConnector, EncounterNotFound, PatientNotFound, get_emr
+from app.emr.models import ClinicalRecord, Patient
 from app.llm import Llm, LlmMessage, get_llm
-from app.prompts import CHAT_SYSTEM_PROMPT, DRAFT_SYSTEM_PROMPTS, patient_line
+from app.prompts import CHAT_SYSTEM_PROMPT, DRAFT_SYSTEM_PROMPTS
 from app.schemas import ChatRequest, DraftRequest, HealthResponse, ModelsResponse
 from app.streaming import EventStreamHeaders, ui_message_stream
 
@@ -65,26 +68,37 @@ async def chat(
         yield event
 
 
+async def draft_source(
+    request: DraftRequest, emr: Annotated[EmrConnector, Depends(get_emr)]
+) -> tuple[Patient, ClinicalRecord | None]:
+    """The patient and, with a stay chosen, its chart, read from the hospital's
+    records. A dependency, so an unknown patient or stay is refused before the
+    stream starts."""
+    try:
+        if request.encounter_id is None:
+            return await emr.get_patient(request.patient_id), None
+        record = await emr.get_record(request.patient_id, request.encounter_id)
+        return record.patient, record
+    except PatientNotFound:
+        raise HTTPException(status_code=404, detail="Unknown patient") from None
+    except EncounterNotFound:
+        raise HTTPException(status_code=404, detail="Unknown encounter") from None
+
+
 @app.post("/api/drafts", response_class=EventSourceResponse)
 async def create_draft(
     request: DraftRequest,
+    source: Annotated[tuple[Patient, ClinicalRecord | None], Depends(draft_source)],
     model: Annotated[str, Depends(chosen_model)],
     llm: Annotated[Llm, Depends(get_llm)],
 ) -> AsyncIterable[ServerSentEvent]:
-    patient = request.patient
-    header = patient_line(
-        name=patient.name,
-        kana=patient.kana,
-        birth_date=patient.birth_date,
-        gender=patient.gender,
-        patient_id=patient.id,
-        today=date.today(),
-    )
-    # Notes are optional; the model then marks every section as not recorded.
-    notes = request.notes.strip() or "（メモなし）"
+    patient, record = source
     messages = [
         LlmMessage(role="system", content=DRAFT_SYSTEM_PROMPTS[request.workflow_id]),
-        LlmMessage(role="user", content=f"{header}\n\nメモ：\n{notes}"),
+        LlmMessage(
+            role="user", content=draft_input(patient, record, request.notes, date.today())
+        ),
     ]
-    async for event in ui_message_stream(llm.stream(messages, model)):
+    whose = {"patientId": patient.id, "encounterId": request.encounter_id}
+    async for event in ui_message_stream(llm.stream(messages, model), whose):
         yield event
