@@ -1,21 +1,14 @@
 import type { Encounter } from "@/features/patient/types";
+import { postJson } from "@/lib/api";
 
-const PATH = "/api/patients/encounters";
-
-/** The patient's hospital stays, newest first. POST keeps the ID out of URLs. */
+/** The patient's hospital stays, newest first. */
 export async function listEncounters(
   patientId: string,
   signal: AbortSignal,
 ): Promise<Encounter[]> {
-  const response = await fetch(PATH, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ patientId }),
-    signal,
-  });
-  if (!response.ok) throw new Error(`POST ${PATH} failed`);
-  const { encounters }: { encounters?: unknown } = await response.json();
-  if (!Array.isArray(encounters)) throw new Error(`POST ${PATH} returned no list`);
+  const answer = await postJson("/api/patients/encounters", { patientId }, signal);
+  const { encounters } = (answer ?? {}) as { encounters?: unknown };
+  if (!Array.isArray(encounters)) throw new Error("The answer lists no encounters");
   return encounters as Encounter[];
 }
 

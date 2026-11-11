@@ -18,12 +18,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import type { DraftSource } from "@/features/workflow/generate-draft";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { t } from "@/locales";
 import { StopButton } from "./stop-button";
 
 type DraftResultProps = {
   draft: string;
+  /** The chart notes it was made from; null when from the notes alone. */
+  source: DraftSource | null;
   onChange: (draft: string) => void;
   /** Still being written: read-only, with a stop button. */
   generating: boolean;
@@ -31,7 +34,14 @@ type DraftResultProps = {
   onReset: () => void;
 };
 
-export function DraftResult({ draft, onChange, generating, onStop, onReset }: DraftResultProps) {
+export function DraftResult({
+  draft,
+  source,
+  onChange,
+  generating,
+  onStop,
+  onReset,
+}: DraftResultProps) {
   const section = useRef<HTMLElement>(null);
   const titleId = useId();
   const { state: copyState, copy } = useCopyToClipboard();
@@ -49,6 +59,11 @@ export function DraftResult({ draft, onChange, generating, onStop, onReset }: Dr
           </h2>
           <Badge variant="warning">{t.workflow.aiDraftBadge}</Badge>
         </div>
+        {source && (
+          <p className="text-caption text-muted-foreground">
+            {t.workflow.draftSource(source.noteCount, source.notesFrom, source.notesTo)}
+          </p>
+        )}
         <Textarea
           aria-labelledby={titleId}
           value={draft}

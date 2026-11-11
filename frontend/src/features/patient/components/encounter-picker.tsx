@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { Encounter } from "@/features/patient/types";
-import type { EncountersStatus } from "@/features/patient/use-encounters";
+import type { FetchStatus } from "@/hooks/use-fetched";
 import { t } from "@/locales";
 
 // Radio values are strings; this one stands for "no stay".
@@ -21,7 +21,7 @@ const NO_ENCOUNTER = "none";
 
 type EncounterPickerProps = {
   encounters: readonly Encounter[];
-  status: EncountersStatus;
+  status: FetchStatus;
   /** Null: draft from the notes alone. */
   value: string | null;
   onChange: (encounterId: string | null) => void;

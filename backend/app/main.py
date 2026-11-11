@@ -98,6 +98,14 @@ async def create_draft(
             role="user", content=draft_input(patient, record, request.notes, date.today())
         ),
     ]
-    whose = {"patientId": patient.id, "encounterId": request.encounter_id}
-    async for event in ui_message_stream(llm.stream(messages, model), whose):
+    # Whose draft this is, and which notes it was made from.
+    notes = record.notes if record else []
+    about = {
+        "patientId": patient.id,
+        "encounterId": request.encounter_id,
+        "noteCount": len(notes) if record else None,
+        "notesFrom": notes[0].recorded_on.isoformat() if notes else None,
+        "notesTo": notes[-1].recorded_on.isoformat() if notes else None,
+    }
+    async for event in ui_message_stream(llm.stream(messages, model), about):
         yield event

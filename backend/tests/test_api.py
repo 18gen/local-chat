@@ -145,9 +145,23 @@ def test_draft_says_whose_it_is_before_any_text(llm):
         "/api/drafts",
         json={"workflowId": "note-summary", "patientId": PATIENT_ID, "encounterId": "00012345-2"},
     )
-    assert events(response)[0] == {
-        "type": "start",
-        "messageMetadata": {"patientId": PATIENT_ID, "encounterId": "00012345-2"},
+    about = events(response)[0]["messageMetadata"]
+    assert about["patientId"] == PATIENT_ID and about["encounterId"] == "00012345-2"
+    # Which notes it was made from: the stay's seven, over nine days.
+    assert about["noteCount"] == 7
+    assert (date.fromisoformat(about["notesTo"]) - date.fromisoformat(about["notesFrom"])).days == 9
+
+
+def test_draft_from_notes_alone_names_no_chart(llm):
+    response = client.post(
+        "/api/drafts", json={"workflowId": "note-summary", "patientId": PATIENT_ID}
+    )
+    assert events(response)[0]["messageMetadata"] == {
+        "patientId": PATIENT_ID,
+        "encounterId": None,
+        "noteCount": None,
+        "notesFrom": None,
+        "notesTo": None,
     }
 
 

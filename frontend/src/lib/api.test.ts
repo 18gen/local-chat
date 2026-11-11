@@ -90,38 +90,18 @@ test("names only the path in its error, never what the response said", async () 
   expect((error as Error).message).toBe("POST /api/chat failed");
 });
 
-const OWNER = { patientId: "00012345", encounterId: null };
-
-async function collectFor(owner: Record<string, string | null>): Promise<string[]> {
-  const texts: string[] = [];
-  const stream = streamText("/api/drafts", {}, new AbortController().signal, owner);
-  for await (const text of stream) texts.push(text);
-  return texts;
-}
-
-test("accepts a reply that opens by saying it is for the expected patient", async () => {
-  respondWith([sse({ type: "start", messageMetadata: OWNER }, delta("下書き"), FINISH)]);
-  expect(await collectFor(OWNER)).toEqual(["下書き"]);
+test("hands onStart what the reply says about itself, before any text", async () => {
+  respondWith([sse({ type: "start", messageMetadata: { id: 1 } }, delta("下書き"), FINISH)]);
+  const onStart = vi.fn();
+  const stream = streamText("/api/drafts", {}, new AbortController().signal, onStart);
+  expect((await stream.next()).value).toBe("下書き");
+  expect(onStart).toHaveBeenCalledWith({ id: 1 });
 });
 
-test.each([
-  ["another patient", { type: "start", messageMetadata: { ...OWNER, patientId: "00098765" } }],
-  ["another stay", { type: "start", messageMetadata: { ...OWNER, encounterId: "00012345-2" } }],
-  ["no one", START],
-])("refuses a reply for %s before showing any of its text", async (_, start) => {
-  respondWith([sse(start, delta("別の患者の下書き"), FINISH)]);
-  const texts: string[] = [];
-  const reading = (async () => {
-    const stream = streamText("/api/drafts", {}, new AbortController().signal, OWNER);
-    for await (const text of stream) texts.push(text);
-  })();
-  await expect(reading).rejects.toThrow("POST /api/drafts failed");
-  expect(texts).toEqual([]);
-});
-
-test("refuses text that arrives before the reply says whose it is", async () => {
-  respondWith([sse(delta("下書き"), { type: "start", messageMetadata: OWNER }, FINISH)]);
-  await expect(collectFor(OWNER)).rejects.toThrow("POST /api/drafts failed");
+test("refuses text that arrives before the start", async () => {
+  respondWith([sse(delta("下書き"), START, FINISH)]);
+  const stream = streamText("/api/drafts", {}, new AbortController().signal, vi.fn());
+  await expect(stream.next()).rejects.toThrow("POST /api/drafts failed");
 });
 
 test("stops with the signal's reason when aborted", async () => {

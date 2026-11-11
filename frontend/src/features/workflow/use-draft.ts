@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { streamDraft } from "@/features/workflow/generate-draft";
+import { streamDraft, type DraftSource } from "@/features/workflow/generate-draft";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
 
 type Status = "idle" | "generating" | "ready" | "failed";
@@ -8,6 +8,7 @@ type Status = "idle" | "generating" | "ready" | "failed";
 /** A draft streamed in from the model, kept only in this component's state. */
 export function useDraft(workflowId: DraftWorkflowId) {
   const [draft, setDraft] = useState<string | null>(null);
+  const [source, setSource] = useState<DraftSource | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const controller = useRef<AbortController | null>(null);
 
@@ -27,7 +28,15 @@ export function useDraft(workflowId: DraftWorkflowId) {
     setStatus("generating");
     void (async () => {
       try {
-        const stream = streamDraft(workflowId, patientId, encounterId, notes, model, current.signal);
+        const stream = streamDraft(
+          workflowId,
+          patientId,
+          encounterId,
+          notes,
+          model,
+          current.signal,
+          setSource,
+        );
         for await (const text of stream) {
           if (current.signal.aborted) return;
           if (text) setDraft(text);
@@ -54,5 +63,5 @@ export function useDraft(workflowId: DraftWorkflowId) {
     setStatus("idle");
   };
 
-  return { draft, setDraft, status, generate, stop, reset };
+  return { draft, setDraft, source, status, generate, stop, reset };
 }

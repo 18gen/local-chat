@@ -1,12 +1,19 @@
 type StreamChunk = { type: string; delta?: string; messageMetadata?: unknown };
 
-/** What a reply must say it is for, e.g. the patient on screen. */
-export type ReplyOwner = Record<string, string | null>;
-
-function isFor(owner: ReplyOwner, metadata: unknown): boolean {
-  if (typeof metadata !== "object" || metadata === null) return false;
-  const said = metadata as Record<string, unknown>;
-  return Object.entries(owner).every(([key, value]) => said[key] === value);
+/** POSTs JSON and returns the JSON answer. Errors name only the path. */
+export async function postJson(
+  path: `/api/${string}`,
+  body: object,
+  signal: AbortSignal,
+): Promise<unknown> {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!response.ok) throw new Error(`POST ${path} failed`);
+  return response.json();
 }
 
 /**
@@ -14,14 +21,14 @@ function isFor(owner: ReplyOwner, metadata: unknown): boolean {
  * stream. POST keeps patient data out of URLs and logs. Throws on an error
  * event or a stream without "finish", so a cut-off reply never passes for a
  * whole one; errors name only the path, as a response can echo the request.
- * With `owner`, a reply that doesn't open by naming that owner also throws,
- * before any text.
+ * `onStart` gets what the reply says about itself before any text; if it
+ * throws, the reply is refused.
  */
 export async function* streamText(
   path: `/api/${string}`,
   body: object,
   signal: AbortSignal,
-  owner?: ReplyOwner,
+  onStart?: (metadata: unknown) => void,
 ): AsyncGenerator<string> {
   const failed = () => (signal.aborted ? signal.reason : new Error(`POST ${path} failed`));
 
@@ -42,7 +49,7 @@ export async function* streamText(
   let buffer = "";
   let text = "";
   let finished = false;
-  let identified = owner === undefined;
+  let started = onStart === undefined;
   try {
     for (;;) {
       const { value, done } = await reader.read();
@@ -60,12 +67,12 @@ export async function* streamText(
         const chunk = JSON.parse(data) as StreamChunk;
         if (chunk.type === "error") throw new Error(chunk.type);
         if (chunk.type === "finish") finished = true;
-        if (chunk.type === "start" && owner) {
-          if (!isFor(owner, chunk.messageMetadata)) throw new Error("wrong owner");
-          identified = true;
+        if (chunk.type === "start" && onStart) {
+          onStart(chunk.messageMetadata);
+          started = true;
         }
         if (chunk.type === "text-delta" && chunk.delta) {
-          if (!identified) throw new Error("no owner");
+          if (!started) throw new Error("text before start");
           text += chunk.delta;
           // Models sometimes open with a blank line.
           yield text.trimStart();

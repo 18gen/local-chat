@@ -11,15 +11,17 @@ import { ModelSelect } from "@/features/model/components/model-select";
 import { useModelChoice } from "@/features/model/use-model-choice";
 import { EncounterPicker } from "@/features/patient/components/encounter-picker";
 import { PatientPicker } from "@/features/patient/components/patient-picker";
-import { defaultEncounterId } from "@/features/patient/list-encounters";
-import type { Patient } from "@/features/patient/types";
-import { useEncounters } from "@/features/patient/use-encounters";
+import { defaultEncounterId, listEncounters } from "@/features/patient/list-encounters";
+import type { Encounter, Patient } from "@/features/patient/types";
+import { useFetched } from "@/hooks/use-fetched";
 import { useDraft } from "@/features/workflow/use-draft";
 import type { DraftWorkflowId } from "@/features/workflow/workflows";
 import { t } from "@/locales";
 import { DraftResult } from "./draft-result";
 import { GenerateButton } from "./generate-button";
 import { StopButton } from "./stop-button";
+
+const NO_ENCOUNTERS: readonly Encounter[] = [];
 
 /**
  * The patient → notes → draft screen. Everything entered stays in this
@@ -29,14 +31,16 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
   const text = t.workflow.items[workflowId];
   const [patient, setPatient] = useState<Patient | null>(null);
   const [notes, setNotes] = useState("");
-  const { draft, setDraft, status, generate, stop, reset } = useDraft(workflowId);
+  const { draft, setDraft, source, status, generate, stop, reset } = useDraft(workflowId);
   const { models, model, setModel } = useModelChoice();
   const notesRef = useRef<HTMLTextAreaElement>(null);
   const notesId = useId();
   const generating = status === "generating";
   const locked = generating || draft !== null;
 
-  const { encounters, status: encountersStatus } = useEncounters(patient?.id ?? null);
+  const patientId = patient?.id ?? null;
+  const stays = useFetched(patientId, (signal) => listEncounters(patientId ?? "", signal));
+  const encounters = stays.data ?? NO_ENCOUNTERS;
   // Undefined until staff choose: the workflow's default stay then applies.
   const [chosenEncounterId, setChosenEncounterId] = useState<string | null | undefined>(undefined);
   const encounterId =
@@ -68,7 +72,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
         />
         <EncounterPicker
           encounters={encounters}
-          status={encountersStatus}
+          status={stays.status}
           value={encounterId}
           onChange={setChosenEncounterId}
           disabled={locked}
@@ -104,7 +108,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
             <GenerateButton
               generating={generating}
               // Not before the stays arrive: the draft must use the one shown.
-              disabled={!patient || generating || encountersStatus === "loading"}
+              disabled={!patient || generating || stays.status === "loading"}
               onGenerate={() => patient && generate(patient.id, encounterId, notes, model)}
             />
             {generating && <StopButton onClick={stop} />}
@@ -122,6 +126,7 @@ export function DraftWorkflow({ workflowId }: { workflowId: DraftWorkflowId }) {
       {draft !== null && (
         <DraftResult
           draft={draft}
+          source={source}
           onChange={setDraft}
           generating={generating}
           onStop={stop}

@@ -13,7 +13,7 @@ TEXT_ID = "text"
 
 
 async def ui_message_stream(
-    text: AsyncIterator[str], metadata: dict[str, str | None] | None = None
+    text: AsyncIterator[str], metadata: dict[str, object] | None = None
 ) -> AsyncIterator[ServerSentEvent]:
     """The response has already started, so a failure is an error event, not a
     status code; the frontend also treats a stream without "finish" as failed.
