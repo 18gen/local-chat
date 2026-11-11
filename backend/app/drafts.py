@@ -3,9 +3,14 @@
 from collections.abc import AsyncIterator
 from datetime import date
 
-from app.emr.models import ClinicalRecord, Encounter, NoteKind, Patient
+from app.emr.models import ClinicalRecord, Encounter, Gender, NoteKind, Patient
 
-GENDER_LABELS = {"male": "男性", "female": "女性", "other": "その他", "unknown": "不明"}
+GENDER_LABELS: dict[Gender, str] = {
+    "male": "男性",
+    "female": "女性",
+    "other": "その他",
+    "unknown": "不明",
+}
 
 NOTE_KIND_LABELS: dict[NoteKind, str] = {
     "admission": "入院時記録",

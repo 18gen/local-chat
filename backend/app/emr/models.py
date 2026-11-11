@@ -7,6 +7,9 @@ from typing import Literal
 from app.schemas import CamelModel
 
 
+Gender = Literal["male", "female", "other", "unknown"]
+
+
 class Admission(CamelModel):
     ward: str
     room: str
@@ -18,7 +21,7 @@ class Patient(CamelModel):
     name: str
     kana: str
     birth_date: date
-    gender: Literal["male", "female", "other", "unknown"]
+    gender: Gender
     department: str
     # Where the patient is now; None for outpatients.
     admission: Admission | None

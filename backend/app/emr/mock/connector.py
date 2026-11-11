@@ -46,13 +46,16 @@ class MockEmrConnector:
     async def get_patient(self, patient_id: str) -> Patient:
         return to_patient(find(patient_id))
 
+    async def list_encounters(self, patient_id: str) -> list[Encounter]:
+        return encounters_of(find(patient_id))
+
     async def get_record(self, patient_id: str, encounter_id: str) -> ClinicalRecord:
-        encounters = await self.list_encounters(patient_id)
-        encounter = next((e for e in encounters if e.id == encounter_id), None)
+        patient = find(patient_id)
+        encounter = next((e for e in encounters_of(patient) if e.id == encounter_id), None)
         if encounter is None:
             raise EncounterNotFound
         return ClinicalRecord(
-            patient=to_patient(find(patient_id)),
+            patient=to_patient(patient),
             encounter=encounter,
             notes=[
                 Note(
@@ -66,32 +69,32 @@ class MockEmrConnector:
             ],
         )
 
-    async def list_encounters(self, patient_id: str) -> list[Encounter]:
-        patient = find(patient_id)
-        today = date.today()
-        return [
-            Encounter(
-                # Counted from the oldest stay, so an ID stays with its stay.
-                id=f"{patient.id}-{len(patient.stays) - index}",
-                department=stay.department or patient.department,
-                ward=stay.ward,
-                room=stay.room,
-                admitted_on=today - timedelta(days=stay.admitted_days_ago),
-                discharged_on=(
-                    None
-                    if stay.discharged_days_ago is None
-                    else today - timedelta(days=stay.discharged_days_ago)
-                ),
-            )
-            for index, stay in enumerate(patient.stays)
-        ]
-
 
 def find(patient_id: str) -> MockPatient:
     patient = next((p for p in MOCK_PATIENTS if p.id == patient_id), None)
     if patient is None:
         raise PatientNotFound
     return patient
+
+
+def encounters_of(patient: MockPatient) -> list[Encounter]:
+    today = date.today()
+    return [
+        Encounter(
+            # Counted from the oldest stay, so an ID stays with its stay.
+            id=f"{patient.id}-{len(patient.stays) - index}",
+            department=stay.department or patient.department,
+            ward=stay.ward,
+            room=stay.room,
+            admitted_on=today - timedelta(days=stay.admitted_days_ago),
+            discharged_on=(
+                None
+                if stay.discharged_days_ago is None
+                else today - timedelta(days=stay.discharged_days_ago)
+            ),
+        )
+        for index, stay in enumerate(patient.stays)
+    ]
 
 
 def to_patient(patient: MockPatient) -> Patient:

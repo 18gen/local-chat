@@ -1,16 +1,13 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import Field
 
-from app.emr.connector import EmrConnector, PatientNotFound, get_emr
+from app.api.dependencies import EmrDep
+from app.emr.connector import PatientNotFound
 from app.emr.models import Encounter, PatientSearchResult
 from app.schemas import CamelModel
 
 # POST throughout: names and patient IDs stay out of URLs, and so out of logs.
-router = APIRouter(prefix="/api/patients")
-
-Emr = Annotated[EmrConnector, Depends(get_emr)]
+router = APIRouter()
 
 
 class PatientSearchRequest(CamelModel):
@@ -26,13 +23,13 @@ class EncountersResponse(CamelModel):
     encounters: list[Encounter]
 
 
-@router.post("/search")
-async def search_patients(request: PatientSearchRequest, emr: Emr) -> PatientSearchResult:
+@router.post("/api/patients/search")
+async def search_patients(request: PatientSearchRequest, emr: EmrDep) -> PatientSearchResult:
     return await emr.search_patients(request.query)
 
 
-@router.post("/encounters")
-async def list_encounters(request: EncountersRequest, emr: Emr) -> EncountersResponse:
+@router.post("/api/patients/encounters")
+async def list_encounters(request: EncountersRequest, emr: EmrDep) -> EncountersResponse:
     try:
         return EncountersResponse(encounters=await emr.list_encounters(request.patient_id))
     except PatientNotFound:
